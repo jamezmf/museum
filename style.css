@@ -1,0 +1,1049 @@
+/* ===== МУЗЕЙ ИСТОРИИ ГИМНАЗИИ ИСКУССТВ — ВИРТУАЛЬНЫЙ ТУР ===== */
+/* Стиль вдохновлён презентацией музея: терракотово-коричневая палитра,     */
+/* коми-пас орнаменты, птица-Сирин мотивы, музейная строгость               */
+/* Все иконки — чистый CSS, без картинок                                    */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Forum&display=swap');
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  -ms-content-zooming: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+:root {
+  /* Палитра — из презентации музея */
+  --m-dark: #1a1410;
+  --m-dark2: #241c14;
+  --m-brown: #3a2c1e;
+  --m-terra: #a0613a;          /* терракот — основной акцент */
+  --m-terra-light: #c07a4c;
+  --m-terra-dark: #7a4a2c;
+  --m-gold: #c49450;
+  --m-gold-light: #dab06a;
+  --m-cream: #f0e4cc;
+  --m-cream-dim: #c8b898;
+  --m-white: #f5efe3;
+  --m-red: #c44e3d;            /* орнаментный красный */
+  --m-red-dark: #8b3328;
+  --m-border: #6a5540;
+  --m-text: #f0e4cc;
+  --m-text-dim: #b8a888;
+  --m-panel: rgba(36, 28, 20, 0.92);
+  --m-panel-solid: #241c14;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Forum', 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 16px;
+  background-color: #0e0b08;
+  color: var(--m-text);
+}
+
+a, a:hover, a:active, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ===== PANORAMA ===== */
+#pano {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+
+/* ===== TITLE BAR ===== */
+#titleBar {
+  position: absolute;
+  top: 0; left: 0;
+  right: 54px;
+  height: 54px;
+  text-align: center;
+  z-index: 10;
+}
+
+.mobile #titleBar { height: 60px; right: 60px; }
+body.fullscreen-enabled #titleBar { right: 108px; }
+body.fullscreen-enabled.mobile #titleBar { right: 120px; }
+body.multiple-scenes #titleBar { left: 54px; }
+body.multiple-scenes.mobile #titleBar { left: 60px; }
+
+#titleBar .sceneName {
+  width: 100%;
+  height: 100%;
+  line-height: 42px;
+  padding: 6px 24px;
+  background: var(--m-panel);
+  border-bottom: 2px solid var(--m-terra);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--m-cream);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.mobile #titleBar .sceneName {
+  line-height: 48px;
+  font-size: 15px;
+}
+
+/* Ромбы вокруг заголовка */
+#titleBar .sceneName::before {
+  content: '\25C6 \2014 ';
+  color: var(--m-terra);
+  font-size: 11px;
+}
+
+#titleBar .sceneName::after {
+  content: ' \2014 \25C6';
+  color: var(--m-terra);
+  font-size: 11px;
+}
+
+/* ===== КНОПКИ УПРАВЛЕНИЯ ===== */
+.vintage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  background: var(--m-panel);
+  border: 1px solid var(--m-border);
+  border-bottom: 2px solid var(--m-terra);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.vintage-btn:hover {
+  background: rgba(60, 44, 30, 0.95);
+  border-color: var(--m-terra-light);
+}
+
+.vintage-btn:active {
+  background: rgba(26, 20, 16, 0.95);
+}
+
+.mobile .vintage-btn { width: 60px; height: 60px; }
+
+/* ===== CSS ИКОНКИ ===== */
+
+.icon-play {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 8px 0 8px 14px;
+  border-color: transparent transparent transparent var(--m-terra);
+  margin-left: 3px;
+  transition: border-color var(--transition);
+}
+.vintage-btn:hover .icon-play { border-left-color: var(--m-terra-light); }
+
+.icon-pause {
+  width: 14px; height: 16px;
+  border-left: 4px solid var(--m-terra);
+  border-right: 4px solid var(--m-terra);
+  transition: border-color var(--transition);
+}
+.vintage-btn:hover .icon-pause {
+  border-left-color: var(--m-terra-light);
+  border-right-color: var(--m-terra-light);
+}
+
+.icon-fullscreen {
+  width: 18px; height: 18px;
+  position: relative;
+}
+.icon-fullscreen::before, .icon-fullscreen::after {
+  content: '';
+  position: absolute;
+  width: 7px; height: 7px;
+  border-color: var(--m-terra);
+  border-style: solid;
+  transition: border-color var(--transition);
+}
+.icon-fullscreen::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.icon-fullscreen::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+.icon-fullscreen .corner-tr, .icon-fullscreen .corner-bl {
+  position: absolute; width: 7px; height: 7px;
+  border-color: var(--m-terra); border-style: solid;
+}
+.icon-fullscreen .corner-tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.icon-fullscreen .corner-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.vintage-btn:hover .icon-fullscreen::before,
+.vintage-btn:hover .icon-fullscreen::after,
+.vintage-btn:hover .icon-fullscreen .corner-tr,
+.vintage-btn:hover .icon-fullscreen .corner-bl { border-color: var(--m-terra-light); }
+
+.icon-windowed {
+  width: 18px; height: 18px;
+  position: relative;
+}
+.icon-windowed::before, .icon-windowed::after {
+  content: '';
+  position: absolute;
+  width: 7px; height: 7px;
+  border-color: var(--m-terra);
+  border-style: solid;
+}
+.icon-windowed::before { top: 0; left: 0; border-width: 0 2px 2px 0; }
+.icon-windowed::after { bottom: 0; right: 0; border-width: 2px 0 0 2px; }
+.icon-windowed .corner-tr, .icon-windowed .corner-bl {
+  position: absolute; width: 7px; height: 7px;
+  border-color: var(--m-terra); border-style: solid;
+}
+.icon-windowed .corner-tr { top: 0; right: 0; border-width: 0 0 2px 2px; }
+.icon-windowed .corner-bl { bottom: 0; left: 0; border-width: 2px 2px 0 0; }
+
+/* Гамбургер */
+.icon-expand {
+  width: 18px; height: 14px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+}
+.icon-expand span {
+  display: block; width: 100%; height: 2px;
+  background-color: var(--m-terra);
+  border-radius: 1px;
+  transition: background-color var(--transition);
+}
+.vintage-btn:hover .icon-expand span { background-color: var(--m-terra-light); }
+
+/* X (закрыть) */
+.icon-collapse {
+  width: 16px; height: 16px;
+  position: relative;
+}
+.icon-collapse::before, .icon-collapse::after {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  width: 18px; height: 2px;
+  background-color: var(--m-terra);
+  border-radius: 1px;
+}
+.icon-collapse::before { transform: translate(-50%, -50%) rotate(45deg); }
+.icon-collapse::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.vintage-btn:hover .icon-collapse::before,
+.vintage-btn:hover .icon-collapse::after { background-color: var(--m-terra-light); }
+
+/* Стрелки управления */
+.icon-up {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 8px 12px 8px;
+  border-color: transparent transparent var(--m-terra) transparent;
+}
+.vintage-btn:hover .icon-up { border-bottom-color: var(--m-terra-light); }
+
+.icon-down {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 12px 8px 0 8px;
+  border-color: var(--m-terra) transparent transparent transparent;
+}
+.vintage-btn:hover .icon-down { border-top-color: var(--m-terra-light); }
+
+.icon-left {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 8px 12px 8px 0;
+  border-color: transparent var(--m-terra) transparent transparent;
+}
+.vintage-btn:hover .icon-left { border-right-color: var(--m-terra-light); }
+
+.icon-right {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 8px 0 8px 12px;
+  border-color: transparent transparent transparent var(--m-terra);
+}
+.vintage-btn:hover .icon-right { border-left-color: var(--m-terra-light); }
+
+.icon-plus {
+  width: 16px; height: 16px;
+  position: relative;
+}
+.icon-plus::before, .icon-plus::after {
+  content: '';
+  position: absolute;
+  background-color: var(--m-terra);
+  border-radius: 1px;
+}
+.icon-plus::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
+.icon-plus::after { top: 0; left: 50%; width: 2px; height: 100%; transform: translateX(-50%); }
+.vintage-btn:hover .icon-plus::before,
+.vintage-btn:hover .icon-plus::after { background-color: var(--m-terra-light); }
+
+.icon-minus {
+  width: 16px; height: 2px;
+  background-color: var(--m-terra);
+  border-radius: 1px;
+}
+.vintage-btn:hover .icon-minus { background-color: var(--m-terra-light); }
+
+/* ===== FULLSCREEN TOGGLE ===== */
+#fullscreenToggle {
+  display: none;
+  position: absolute;
+  top: 0; right: 0;
+  z-index: 10;
+}
+body.fullscreen-enabled #fullscreenToggle { display: flex; }
+
+#fullscreenToggle .icon-on { display: none; }
+#fullscreenToggle .icon-off { display: flex; align-items: center; justify-content: center; }
+#fullscreenToggle.enabled .icon-on { display: flex; align-items: center; justify-content: center; }
+#fullscreenToggle.enabled .icon-off { display: none; }
+
+/* ===== AUTOROTATE ===== */
+#autorotateToggle {
+  display: flex;
+  position: absolute;
+  top: 0; right: 0;
+  z-index: 10;
+}
+body.fullscreen-enabled #autorotateToggle { right: 54px; }
+body.fullscreen-enabled.mobile #autorotateToggle { right: 60px; }
+
+#autorotateToggle .icon-on { display: none; }
+#autorotateToggle .icon-off { display: flex; align-items: center; justify-content: center; }
+#autorotateToggle.enabled .icon-on { display: flex; align-items: center; justify-content: center; }
+#autorotateToggle.enabled .icon-off { display: none; }
+
+/* ===== СПИСОК СЦЕН TOGGLE ===== */
+#sceneListToggle {
+  position: absolute;
+  top: 0; left: 0;
+  z-index: 10;
+}
+#sceneListToggle .icon-on { display: none; }
+#sceneListToggle .icon-off { display: flex; align-items: center; justify-content: center; }
+#sceneListToggle.enabled .icon-on { display: flex; align-items: center; justify-content: center; }
+#sceneListToggle.enabled .icon-off { display: none; }
+
+/* ===== СПИСОК СЦЕН ===== */
+#sceneList {
+  position: absolute;
+  top: 0;
+  left: -260px;
+  padding-top: 54px;
+  width: 260px;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin-left: 0;
+  transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 9;
+}
+
+.mobile #sceneList { padding-top: 60px; }
+
+#sceneList .scenes {
+  width: 100%;
+  background: var(--m-panel);
+  border-right: 2px solid var(--m-terra);
+  border-bottom: 2px solid var(--m-terra);
+  padding-bottom: 10px;
+}
+
+/* Заголовок списка */
+#sceneList .scenes::before {
+  content: '\25C6 \0417\0410\041B\042B \25C6';
+  display: block;
+  text-align: center;
+  padding: 14px 15px 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--m-terra);
+  border-bottom: 2px solid var(--m-terra-dark);
+  margin-bottom: 6px;
+}
+
+/* Орнаментная красная полоска */
+#sceneList .scenes::after {
+  content: '\25C6\25C7\25C6\25C7\25C6\25C7\25C6\25C7\25C6\25C7\25C6\25C7\25C6';
+  display: block;
+  text-align: center;
+  font-size: 6px;
+  letter-spacing: 2px;
+  color: var(--m-red);
+  padding: 2px 0 6px;
+  border-bottom: 1px solid rgba(160, 97, 58, 0.25);
+}
+
+.mobile #sceneList { width: 100%; height: 100%; left: -100%; }
+.mobile #sceneList.enabled { margin-left: 100%; }
+.mobile #sceneList .scenes { height: 100%; }
+#sceneList.enabled { margin-left: 260px; }
+
+#sceneList .scene {
+  display: block;
+  width: 100%;
+  height: 42px;
+  position: relative;
+  transition: all var(--transition);
+}
+
+.mobile #sceneList .scene { height: 52px; }
+
+#sceneList .scene .text {
+  width: 100%;
+  height: 100%;
+  padding: 0 18px 0 34px;
+  line-height: 42px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Forum', serif;
+  font-size: 16px;
+  color: var(--m-text-dim);
+  transition: all var(--transition);
+  position: relative;
+}
+
+/* Ромбик перед названием */
+#sceneList .scene .text::before {
+  content: '\25C8';
+  position: absolute;
+  left: 14px;
+  font-size: 8px;
+  color: var(--m-terra-dark);
+  opacity: 0.6;
+  transition: all var(--transition);
+}
+
+.mobile #sceneList .scene .text { line-height: 52px; }
+
+.no-touch #sceneList .scene:hover {
+  background: linear-gradient(90deg, rgba(160, 97, 58, 0.15), transparent);
+}
+.no-touch #sceneList .scene:hover .text {
+  color: var(--m-gold-light);
+}
+.no-touch #sceneList .scene:hover .text::before {
+  color: var(--m-terra); opacity: 1;
+}
+
+#sceneList .scene.current {
+  background: linear-gradient(90deg, rgba(160, 97, 58, 0.2), transparent);
+}
+#sceneList .scene.current .text {
+  color: var(--m-gold-light);
+  font-weight: 600;
+}
+#sceneList .scene.current .text::before {
+  color: var(--m-terra); opacity: 1;
+}
+
+#sceneList .scene + .scene {
+  border-top: 1px solid rgba(160, 97, 58, 0.12);
+}
+
+body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none; }
+
+#sceneList::-webkit-scrollbar { width: 4px; }
+#sceneList::-webkit-scrollbar-track { background: rgba(26, 20, 16, 0.5); }
+#sceneList::-webkit-scrollbar-thumb { background: var(--m-border); border-radius: 2px; }
+
+
+/* ============================================================== */
+/* === LINK HOTSPOT — НАВИГАЦИОННАЯ СТРЕЛКА (БОЛЬШАЯ, ЯВНАЯ) === */
+/* ============================================================== */
+
+.link-hotspot {
+  width: 90px;
+  height: 90px;
+  margin-left: -45px;
+  margin-top: -45px;
+  cursor: pointer;
+  opacity: 0.92;
+  transition: opacity 0.3s;
+}
+
+.no-touch .link-hotspot:hover {
+  opacity: 1;
+}
+
+.mobile .link-hotspot {
+  width: 100px;
+  height: 100px;
+  margin-left: -50px;
+  margin-top: -50px;
+}
+
+/* Большой круглый индикатор */
+.link-hotspot-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Круглая подложка — терракот */
+.link-hotspot-icon::before {
+  content: '';
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(160, 97, 58, 0.35) 0%,
+    rgba(160, 97, 58, 0.18) 60%,
+    transparent 100%
+  );
+  border: 2.5px solid rgba(240, 228, 204, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(160, 97, 58, 0.3),
+    0 2px 12px rgba(0,0,0,0.4),
+    inset 0 0 20px rgba(160, 97, 58, 0.1);
+  transition: all var(--transition);
+}
+
+/* Стрелка-шеврон — большая и заметная */
+.link-hotspot-icon::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-top: 3.5px solid var(--m-cream);
+  border-right: 3.5px solid var(--m-cream);
+  transform: rotate(-45deg) translate(-2px, 2px);
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+  transition: all var(--transition);
+}
+
+/* Hover — подсветка */
+.no-touch .link-hotspot:hover .link-hotspot-icon::before {
+  border-color: rgba(240, 228, 204, 0.85);
+  background: radial-gradient(circle,
+    rgba(160, 97, 58, 0.5) 0%,
+    rgba(160, 97, 58, 0.25) 60%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(160, 97, 58, 0.5),
+    0 0 20px rgba(160, 97, 58, 0.35),
+    0 2px 14px rgba(0,0,0,0.4),
+    inset 0 0 20px rgba(160, 97, 58, 0.15);
+}
+
+.no-touch .link-hotspot:hover .link-hotspot-icon::after {
+  border-color: #fff;
+}
+
+/* Подпись (всегда видна) */
+.link-hotspot-label {
+  display: block;
+  text-align: center;
+  margin-top: 6px;
+  font-family: 'Forum', serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--m-cream);
+  text-shadow:
+    0 1px 4px rgba(0,0,0,0.9),
+    0 0 10px rgba(0,0,0,0.6),
+    1px 1px 2px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+  pointer-events: none;
+  line-height: 1.3;
+}
+
+/* Тултип при наведении */
+.link-hotspot-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 14px;
+  margin-left: 8px;
+  font-family: 'Forum', serif;
+  font-size: 14px;
+  max-width: 300px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: var(--m-panel);
+  border: 1px solid var(--m-terra);
+  color: var(--m-cream);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: transform 0.3s, opacity 0.3s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+.no-touch .link-hotspot:hover .link-hotspot-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.tooltip-fallback .link-hotspot-tooltip { display: none; }
+.no-touch .tooltip-fallback .link-hotspot:hover .link-hotspot-tooltip { display: block; }
+
+
+/* ============================================================== */
+/* === INFO HOTSPOT — КНОПКА ИНФОРМАЦИИ                      === */
+/* ============================================================== */
+
+.info-hotspot {
+  position: absolute;
+  opacity: 0.92;
+  transition: opacity 0.2s 0.2s;
+}
+
+.no-touch .info-hotspot:hover {
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+
+.info-hotspot.visible {
+  opacity: 1;
+}
+
+/* Header: closed = pill with icon + "ПОДРОБНЕЕ"; opened = rectangle with title + close */
+.info-hotspot .info-hotspot-header {
+  width: auto;
+  min-width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, var(--m-terra), var(--m-terra-light));
+  border: 2px solid rgba(240, 228, 204, 0.45);
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  padding-right: 0;
+  transition: width 0.3s ease-in-out, border-radius 0.3s ease-in-out, box-shadow 0.3s;
+  overflow: hidden;
+  position: relative;
+}
+
+.mobile .info-hotspot .info-hotspot-header {
+  min-width: 56px;
+  height: 56px;
+  border-radius: 28px;
+}
+
+/* При клике (visible) — разворачиваем в прямоугольник с заголовком */
+.desktop .info-hotspot.visible .info-hotspot-header {
+  width: 320px;
+  border-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(160, 97, 58, 0.4);
+}
+
+/* Иконка «i» — увеличенная */
+.info-hotspot .info-hotspot-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile .info-hotspot .info-hotspot-icon-wrapper {
+  width: 56px; height: 56px; min-width: 56px;
+}
+
+.info-hotspot .info-hotspot-icon {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255,255,255,0.85);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  font-style: italic;
+  color: rgba(255,255,255,0.95);
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Текст «ПОДРОБНЕЕ» — всегда видим в закрытом состоянии */
+.info-hotspot .info-hotspot-label {
+  font-family: 'Forum', serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+  padding: 0 16px 0 2px;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Скрываем ПОДРОБНЕЕ только при клике (visible) */
+.desktop .info-hotspot.visible .info-hotspot-label { display: none; }
+
+/* Title wrapper — абсолютно позиционирован, появляется только при visible */
+.info-hotspot .info-hotspot-title-wrapper {
+  position: absolute;
+  left: 50px;
+  top: 0;
+  width: 0;
+  height: 50px;
+  padding: 0;
+  overflow: hidden;
+  transition: width 0s 0.3s, padding 0s 0.3s;
+}
+
+.desktop .info-hotspot.visible .info-hotspot-title-wrapper {
+  width: 270px;
+  padding: 0 10px;
+  transition: width 0s, padding 0s;
+}
+
+.info-hotspot .info-hotspot-title-wrapper:before {
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
+}
+
+.info-hotspot .info-hotspot-title {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: 'Forum', serif;
+  font-size: 15px;
+  color: var(--m-cream);
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Close button */
+.info-hotspot .info-hotspot-close-wrapper {
+  position: absolute;
+  right: -50px;
+  top: 0;
+  height: 50px;
+  width: 50px;
+  border-top-right-radius: 5px;
+  background: rgba(122, 74, 44, 0.95);
+  border: 1px solid var(--m-border);
+  border-left: none;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: perspective(200px) rotateY(90deg);
+  transform-origin: 0 50% 0;
+  transition: transform 0.3s 0.3s, visibility 0s 0.6s;
+}
+
+.desktop .info-hotspot.visible .info-hotspot-close-wrapper {
+  visibility: visible;
+  transform: perspective(200px) rotateY(0deg);
+  transition: transform 0.3s, visibility 0s 0s;
+}
+
+.info-hotspot .info-hotspot-close-icon {
+  width: 18px; height: 18px;
+  position: relative;
+}
+
+.info-hotspot .info-hotspot-close-icon::before,
+.info-hotspot .info-hotspot-close-icon::after {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  width: 18px; height: 2px;
+  background-color: var(--m-cream);
+  border-radius: 1px;
+}
+.info-hotspot .info-hotspot-close-icon::before { transform: translate(-50%, -50%) rotate(45deg); }
+.info-hotspot .info-hotspot-close-icon::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* Info text panel */
+.info-hotspot .info-hotspot-text {
+  position: absolute;
+  width: 370px;
+  height: auto;
+  max-height: 250px;
+  top: 50px;
+  left: 0;
+  padding: 16px;
+  background: var(--m-panel);
+  border: 2px solid var(--m-terra);
+  border-top: none;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  overflow-y: auto;
+  visibility: hidden;
+  font-family: 'Forum', serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--m-text);
+  transform: perspective(200px) rotateX(-89.999deg);
+  transform-origin: 50% 0 0;
+  transition: transform 0.3s, visibility 0s 0.3s;
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.desktop .info-hotspot.visible .info-hotspot-text {
+  visibility: visible;
+  transform: perspective(200px) rotateX(0deg);
+  transition: transform 0.3s 0.3s, visibility 0s 0s;
+}
+
+/* ===== INFO HOTSPOT MODAL (mobile) ===== */
+.desktop .info-hotspot-modal { display: none; }
+
+.info-hotspot-modal {
+  top: 0; left: 0;
+  position: absolute;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  z-index: 11000 !important;
+  background-color: rgba(14, 11, 8, 0.75);
+  line-height: 1.2em;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.2s ease-in-out 0.5s, visibility 0s 0.7s;
+}
+
+.info-hotspot-modal.visible {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.2s ease-in-out, visibility 0s 0s;
+}
+
+.info-hotspot-modal .info-hotspot-header {
+  position: absolute;
+  top: 60px; left: 10px; right: 10px;
+  width: auto; height: 50px;
+  background: linear-gradient(135deg, var(--m-terra), var(--m-terra-light));
+  border: 2px solid rgba(240, 228, 204, 0.35);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out 0.2s;
+}
+.info-hotspot-modal.visible .info-hotspot-header { opacity: 1; }
+
+.info-hotspot-modal .info-hotspot-icon-wrapper {
+  width: 50px; height: 50px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.info-hotspot-modal .info-hotspot-icon {
+  width: 28px; height: 28px;
+  border: 2px solid rgba(255,255,255,0.8);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 700; font-style: italic;
+  color: rgba(255,255,255,0.9);
+}
+
+.info-hotspot-modal .info-hotspot-title-wrapper {
+  position: absolute; top: 0; left: 50px; right: 50px;
+  width: auto; height: 50px; padding: 0 10px;
+}
+.info-hotspot-modal .info-hotspot-title-wrapper:before {
+  content: ''; display: inline-block; vertical-align: middle; height: 100%;
+}
+.info-hotspot-modal .info-hotspot-title {
+  display: inline-block; vertical-align: middle;
+  font-family: 'Forum', serif;
+  font-size: 16px; color: var(--m-cream);
+  -moz-user-select: text; -webkit-user-select: text; -ms-user-select: text; user-select: text;
+}
+
+.info-hotspot-modal .info-hotspot-close-wrapper {
+  position: absolute; top: 0; right: 0;
+  width: 50px; height: 50px;
+  background: rgba(122, 74, 44, 0.95);
+  border-left: 1px solid var(--m-border);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.info-hotspot-modal .info-hotspot-close-icon {
+  width: 18px; height: 18px; position: relative;
+}
+.info-hotspot-modal .info-hotspot-close-icon::before,
+.info-hotspot-modal .info-hotspot-close-icon::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 18px; height: 2px;
+  background-color: var(--m-cream); border-radius: 1px;
+}
+.info-hotspot-modal .info-hotspot-close-icon::before { transform: translate(-50%, -50%) rotate(45deg); }
+.info-hotspot-modal .info-hotspot-close-icon::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+.info-hotspot-modal .info-hotspot-text {
+  position: absolute;
+  top: 110px; bottom: 10px; left: 10px; right: 10px;
+  padding: 16px;
+  background: var(--m-panel);
+  border: 2px solid var(--m-terra);
+  overflow-y: auto; opacity: 0;
+  font-family: 'Forum', serif;
+  font-size: 16px; line-height: 1.6; color: var(--m-text);
+  transition: opacity 0.3s ease-in-out;
+  -moz-user-select: text; -webkit-user-select: text; -ms-user-select: text; user-select: text;
+}
+.info-hotspot-modal.visible .info-hotspot-text {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out 0.4s;
+}
+
+/* ===== VIEW CONTROL BUTTONS ===== */
+.viewControlButton {
+  display: none; position: absolute;
+  bottom: 16px; left: 50%; z-index: 10;
+}
+body.view-control-buttons .viewControlButton { display: flex; }
+@media (max-width: 600px) {
+  body.view-control-buttons .viewControlButton { display: none; }
+}
+
+.viewControlButton-1 { margin-left: -167px; }
+.viewControlButton-2 { margin-left: -111px; }
+.viewControlButton-3 { margin-left: -55px; }
+.viewControlButton-4 { margin-left: 1px; }
+.viewControlButton-5 { margin-left: 57px; }
+.viewControlButton-6 { margin-left: 113px; }
+
+.viewControlButton-5::before {
+  content: '';
+  position: absolute; left: -5px; top: 10px; bottom: 10px;
+  width: 1px; background: var(--m-terra-dark); opacity: 0.5;
+}
+
+/* ===== NADIR PATCH ===== */
+.nadir-patch {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  margin-left: -300px;
+  margin-top: -300px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.nadir-patch-inner {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(180, 173, 155, 0.85) 0%,
+    rgba(180, 173, 155, 0.7) 25%,
+    rgba(180, 173, 155, 0.4) 50%,
+    rgba(180, 173, 155, 0.15) 75%,
+    transparent 100%
+  );
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: radial-gradient(circle at center, black 0%, black 25%, transparent 65%);
+  mask-image: radial-gradient(circle at center, black 0%, black 25%, transparent 65%);
+}
+
+
+/* ============================================================== */
+/* === ДЕКОРАТИВНЫЕ ОРНАМЕНТЫ — СТИЛЬ ПРЕЗЕНТАЦИИ МУЗЕЯ       === */
+/* ============================================================== */
+
+/* Нижний орнамент — красные коми-пас ромбы */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--m-red) 0px, var(--m-red) 6px,
+    transparent 6px, transparent 8px,
+    var(--m-terra) 8px, var(--m-terra) 14px,
+    transparent 14px, transparent 16px
+  );
+  opacity: 0.7;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Верхний орнамент */
+body::before {
+  content: '';
+  position: fixed;
+  top: 54px; left: 0; right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--m-terra) 0px, var(--m-terra) 4px,
+    transparent 4px, transparent 6px,
+    var(--m-red) 6px, var(--m-red) 8px,
+    transparent 8px, transparent 10px
+  );
+  opacity: 0.45;
+  z-index: 100;
+  pointer-events: none;
+}
+
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#sceneList .scene { animation: fadeInUp 0.4s ease-out backwards; }
+#sceneList .scene:nth-child(1) { animation-delay: 0.05s; }
+#sceneList .scene:nth-child(2) { animation-delay: 0.1s; }
+#sceneList .scene:nth-child(3) { animation-delay: 0.15s; }
+#sceneList .scene:nth-child(4) { animation-delay: 0.2s; }
+#sceneList .scene:nth-child(5) { animation-delay: 0.25s; }
+#sceneList .scene:nth-child(6) { animation-delay: 0.3s; }
+#sceneList .scene:nth-child(7) { animation-delay: 0.35s; }
+#sceneList .scene:nth-child(8) { animation-delay: 0.4s; }
+#sceneList .scene:nth-child(9) { animation-delay: 0.45s; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-height: 400px) {
+  .viewControlButton { bottom: 4px; }
+}
