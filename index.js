@@ -67,8 +67,27 @@
       { cubeMapPreviewUrl: urlPrefix + "/" + data.id + "/preview.jpg" });
     var geometry = new Marzipano.CubeGeometry(data.levels);
 
-    var limiter = Marzipano.RectilinearView.limit.traditional(
-      data.faceSize, 100 * Math.PI / 180, 120 * Math.PI / 180);
+    // Dynamic pitch limiter: accounts for current FOV so viewport edges
+    // never reach the ceiling or the floor (tripod).
+    // Positive pitch = looking down, negative = looking up.
+    var maxUpEdge = 50 * Math.PI / 180;    // top edge: max 50° above horizontal
+    var maxDownEdge = 50 * Math.PI / 180;  // bottom edge: max 50° below horizontal
+    var limiter = Marzipano.util.compose(
+      Marzipano.RectilinearView.limit.traditional(
+        data.faceSize, 100 * Math.PI / 180, 120 * Math.PI / 180),
+      function(params) {
+        var halfVfov = (params.fov || 0) / 2;
+        var minPitch = -maxUpEdge + halfVfov;   // ceiling limit
+        var maxPitch = maxDownEdge - halfVfov;   // floor limit
+        // If constraints conflict at very wide FOV, lock to center
+        if (minPitch > maxPitch) {
+          minPitch = maxPitch = (maxDownEdge - maxUpEdge) / 2;
+        }
+        if (params.pitch < minPitch) { params.pitch = minPitch; }
+        if (params.pitch > maxPitch) { params.pitch = maxPitch; }
+        return params;
+      }
+    );
     var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
 
     var scene = viewer.createScene({
@@ -139,6 +158,16 @@
     });
   } else {
     document.body.classList.add('fullscreen-disabled');
+  }
+
+  // Set up view control buttons.
+  if (data.settings.viewControlButtons) {
+    document.body.classList.add('view-control-buttons');
+  }
+
+  // Set up multiple scenes toggle.
+  if (scenes.length > 1) {
+    document.body.classList.add('multiple-scenes');
   }
 
   // Set handler for scene list toggle.

@@ -701,7 +701,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-/* Текст «ПОДРОБНЕЕ» — всегда видим в закрытом состоянии */
+/* Текст «ПОДРОБНЕЕ» — видим только в закрытом состоянии */
 .info-hotspot .info-hotspot-label {
   font-family: 'Forum', serif;
   font-size: 13px;
@@ -711,27 +711,45 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   padding: 0 16px 0 2px;
   white-space: nowrap;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  /* Smooth transition instead of display:none to avoid overlap */
+  opacity: 1;
+  max-width: 200px;
+  transition: opacity 0.15s ease-out, max-width 0.15s ease-out;
+  pointer-events: auto;
 }
 
-/* Скрываем ПОДРОБНЕЕ только при клике (visible) */
-.desktop .info-hotspot.visible .info-hotspot-label { display: none; }
+/* Скрываем ПОДРОБНЕЕ при раскрытии — сначала opacity, потом ширина */
+.desktop .info-hotspot.visible .info-hotspot-label {
+  opacity: 0;
+  max-width: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.1s ease-out, max-width 0.1s 0.05s ease-out, padding 0s 0.15s;
+}
 
 /* Title wrapper — абсолютно позиционирован, появляется только при visible */
 .info-hotspot .info-hotspot-title-wrapper {
   position: absolute;
   left: 50px;
   top: 0;
-  width: 0;
   height: 50px;
   padding: 0;
   overflow: hidden;
-  transition: width 0s 0.3s, padding 0s 0.3s;
+  /* Закрытие: мгновенно скрываем */
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease-out, width 0s 0.15s, padding 0s 0.15s;
 }
 
 .desktop .info-hotspot.visible .info-hotspot-title-wrapper {
   width: 270px;
   padding: 0 10px;
-  transition: width 0s, padding 0s;
+  opacity: 1;
+  pointer-events: auto;
+  /* Открытие: сначала ширина, затем opacity */
+  transition: opacity 0.15s 0.1s ease-out, width 0s ease-out, padding 0s ease-out;
 }
 
 .info-hotspot .info-hotspot-title-wrapper:before {
