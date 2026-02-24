@@ -86,12 +86,16 @@
       maxUpEdge: (vl.maxUpEdge != null ? vl.maxUpEdge : 50) * Math.PI / 180,
       maxDownEdge: (vl.maxDownEdge != null ? vl.maxDownEdge : 50) * Math.PI / 180,
       minFov: (vl.minFov != null ? vl.minFov : 30) * Math.PI / 180,
-      maxFov: (vl.maxFov != null ? vl.maxFov : 120) * Math.PI / 180
+      maxFov: (vl.maxFov != null ? vl.maxFov : 100) * Math.PI / 180
     };
     var limiter = Marzipano.util.compose(
       Marzipano.RectilinearView.limit.traditional(
-        data.faceSize, sceneViewLimits.minFov, sceneViewLimits.maxFov),
+        data.faceSize, 100 * Math.PI / 180, 120 * Math.PI / 180),
       function(params) {
+        // Per-scene FOV clamp
+        if (params.fov < sceneViewLimits.minFov) { params.fov = sceneViewLimits.minFov; }
+        if (params.fov > sceneViewLimits.maxFov) { params.fov = sceneViewLimits.maxFov; }
+        // Per-scene pitch clamp
         var halfVfov = (params.fov || 0) / 2;
         var minPitch = -sceneViewLimits.maxUpEdge + halfVfov;
         var maxPitch = sceneViewLimits.maxDownEdge - halfVfov;
