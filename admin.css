@@ -1,0 +1,387 @@
+/* ===== MUSEUM TOUR ADMIN PANEL ===== */
+/* Terracotta museum theme matching the main tour styles */
+
+/* Only show admin elements when admin mode is active */
+#adminToolbar { display: none; }
+body.admin-mode #adminToolbar { display: block; }
+
+/* ===== TOOLBAR ===== */
+#adminToolbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 20000;
+  background: var(--m-panel-solid, #241c14);
+  border-bottom: 2px solid var(--m-terra, #a0613a);
+  font-family: 'Forum', 'Cormorant Garamond', serif;
+  animation: adminSlideDown 0.3s ease-out;
+}
+
+@keyframes adminSlideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.admin-toolbar-inner {
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--m-terra, #a0613a);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-right: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.admin-btns {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.admin-btn {
+  background: rgba(160, 97, 58, 0.12);
+  border: 1px solid rgba(106, 85, 64, 0.6);
+  color: var(--m-cream, #f0e4cc);
+  padding: 5px 9px;
+  font-family: 'Forum', serif;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.admin-btn:hover {
+  background: rgba(160, 97, 58, 0.3);
+  border-color: var(--m-terra, #a0613a);
+}
+
+.admin-btn.active {
+  background: var(--m-terra, #a0613a);
+  color: #fff;
+  border-color: var(--m-terra-light, #c07a4c);
+}
+
+.admin-sep {
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  background: rgba(106, 85, 64, 0.5);
+  margin: 0 2px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.admin-mode-label {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--m-text-dim, #b8a888);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+
+.admin-mode-label b {
+  color: var(--m-gold-light, #dab06a);
+}
+
+/* ===== SHIFT EXISTING UI DOWN WHEN ADMIN ACTIVE ===== */
+body.admin-mode #titleBar { top: 46px; }
+body.admin-mode #sceneList { padding-top: 100px; }
+body.admin-mode #sceneListToggle { top: 46px; }
+body.admin-mode #autorotateToggle { top: 46px; }
+body.admin-mode #fullscreenToggle { top: 46px; }
+body.admin-mode::before { top: 100px; }
+
+/* ===== CURSOR MODES ===== */
+body.admin-mode-add-info #pano,
+body.admin-mode-add-link #pano {
+  cursor: crosshair !important;
+}
+
+/* ===== EDIT MODE HOTSPOT INDICATORS ===== */
+body.admin-mode-edit .info-hotspot,
+body.admin-mode-edit .link-hotspot {
+  outline: 2px dashed var(--m-gold, #c49450) !important;
+  outline-offset: 4px;
+}
+
+body.admin-mode-edit .info-hotspot:hover,
+body.admin-mode-edit .link-hotspot:hover {
+  outline-color: var(--m-red, #c44e3d) !important;
+  outline-style: solid !important;
+}
+
+/* ===== MODAL SYSTEM ===== */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10, 8, 5, 0.8);
+  z-index: 30000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: adminFadeIn 0.2s;
+}
+
+@keyframes adminFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.admin-modal {
+  background: var(--m-panel-solid, #241c14);
+  border: 2px solid var(--m-terra, #a0613a);
+  border-radius: 6px;
+  min-width: 340px;
+  max-width: 520px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  animation: adminScaleIn 0.2s ease-out;
+}
+
+@keyframes adminScaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.admin-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(160, 97, 58, 0.3);
+}
+
+.admin-modal-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--m-cream, #f0e4cc);
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  color: var(--m-text-dim, #b8a888);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.admin-modal-close:hover {
+  color: var(--m-red, #c44e3d);
+}
+
+.admin-modal-body {
+  padding: 16px 18px;
+}
+
+.admin-modal-body label {
+  display: block;
+  font-size: 13px;
+  color: var(--m-text-dim, #b8a888);
+  margin-bottom: 4px;
+  margin-top: 12px;
+  letter-spacing: 0.5px;
+}
+
+.admin-modal-body label:first-child {
+  margin-top: 0;
+}
+
+.admin-input,
+.admin-textarea {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(26, 20, 16, 0.9);
+  border: 1px solid var(--m-border, #6a5540);
+  border-radius: 3px;
+  color: var(--m-cream, #f0e4cc);
+  font-family: 'Forum', serif;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.admin-input:focus,
+.admin-textarea:focus {
+  border-color: var(--m-terra, #a0613a);
+}
+
+.admin-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.admin-coords {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--m-text-dim, #b8a888);
+  font-family: 'Consolas', 'Courier New', monospace;
+  opacity: 0.7;
+}
+
+.admin-modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(160, 97, 58, 0.2);
+}
+
+.admin-modal-btn {
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-family: 'Forum', serif;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid var(--m-border, #6a5540);
+  background: rgba(160, 97, 58, 0.15);
+  color: var(--m-cream, #f0e4cc);
+  transition: all 0.2s;
+}
+
+.admin-modal-btn:hover {
+  background: rgba(160, 97, 58, 0.3);
+}
+
+.admin-modal-btn.primary {
+  background: var(--m-terra, #a0613a);
+  color: #fff;
+  border-color: var(--m-terra-light, #c07a4c);
+}
+
+.admin-modal-btn.primary:hover {
+  background: var(--m-terra-light, #c07a4c);
+}
+
+.admin-modal-btn.danger {
+  background: rgba(196, 78, 61, 0.2);
+  border-color: var(--m-red, #c44e3d);
+  color: var(--m-red, #c44e3d);
+}
+
+.admin-modal-btn.danger:hover {
+  background: var(--m-red, #c44e3d);
+  color: #fff;
+}
+
+/* ===== SCENE ROWS IN MODAL ===== */
+.admin-scene-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.admin-scene-num {
+  font-size: 13px;
+  color: var(--m-terra, #a0613a);
+  min-width: 24px;
+  font-weight: 600;
+}
+
+.admin-scene-row .admin-input {
+  flex: 1;
+  margin: 0;
+}
+
+/* ===== FIREBASE HINT ===== */
+.admin-hint {
+  font-size: 13px;
+  color: var(--m-text-dim, #b8a888);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.admin-hint a {
+  color: var(--m-terra-light, #c07a4c);
+  text-decoration: underline;
+}
+
+.admin-firebase-status {
+  margin-top: 14px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--m-text-dim, #b8a888);
+}
+
+/* ===== NOTIFICATION ===== */
+.admin-notification {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--m-panel-solid, #241c14);
+  border: 1px solid var(--m-terra, #a0613a);
+  color: var(--m-cream, #f0e4cc);
+  padding: 10px 22px;
+  border-radius: 4px;
+  font-family: 'Forum', serif;
+  font-size: 14px;
+  z-index: 40000;
+  opacity: 0;
+  transition: all 0.3s ease-out;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.admin-notification.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+  .admin-toolbar-inner {
+    padding: 4px 8px;
+    gap: 3px;
+  }
+
+  .admin-btn {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  .admin-logo {
+    font-size: 11px;
+    margin-right: 4px;
+  }
+
+  .admin-mode-label {
+    display: none;
+  }
+
+  .admin-sep {
+    display: none;
+  }
+
+  .admin-modal {
+    min-width: auto;
+    width: 95vw;
+  }
+}

@@ -10,6 +10,19 @@
   var screenfull = window.screenfull;
   var data = window.APP_DATA;
 
+  // Load admin overrides from localStorage (persists across sessions).
+  (function() {
+    try {
+      var saved = localStorage.getItem('museum_tour_data');
+      if (saved) {
+        var parsed = JSON.parse(saved);
+        if (parsed && parsed.scenes && parsed.scenes.length) {
+          data = parsed;
+        }
+      }
+    } catch(e) { /* ignore parse errors */ }
+  })();
+
   // Grab elements from DOM.
   var panoElement = document.querySelector('#pano');
   var sceneNameElement = document.querySelector('#titleBar .sceneName');
@@ -244,6 +257,7 @@
     startAutorotate();
     updateSceneName(scene);
     updateSceneList(scene);
+    if (window.TOUR) window.TOUR.currentScene = scene;
   }
 
   function updateSceneName(scene) {
@@ -457,6 +471,27 @@
     }
     return null;
   }
+
+  // If data came from localStorage, update scene list names.
+  if (data !== window.APP_DATA) {
+    data.scenes.forEach(function(sceneData) {
+      var el = document.querySelector('#sceneList .scene[data-id="' + sceneData.id + '"] .text');
+      if (el) el.textContent = sceneData.name;
+    });
+  }
+
+  // Expose tour API for admin panel.
+  window.TOUR = {
+    viewer: viewer,
+    scenes: scenes,
+    appData: data,
+    currentScene: null,
+    switchScene: switchScene,
+    findSceneById: findSceneById,
+    findSceneDataById: findSceneDataById,
+    createInfoHotspotElement: createInfoHotspotElement,
+    createLinkHotspotElement: createLinkHotspotElement
+  };
 
   // Display the initial scene.
   switchScene(scenes[0]);
