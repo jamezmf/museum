@@ -289,6 +289,52 @@ body.admin-mode-edit .link-hotspot:hover {
   color: #fff;
 }
 
+/* ===== RANGE SLIDERS ===== */
+.admin-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(106, 85, 64, 0.4);
+  outline: none;
+  margin: 6px 0 14px;
+  cursor: pointer;
+}
+
+.admin-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--m-terra, #a0613a);
+  border: 2px solid var(--m-cream, #f0e4cc);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  transition: background 0.2s;
+}
+
+.admin-range::-webkit-slider-thumb:hover {
+  background: var(--m-terra-light, #c07a4c);
+}
+
+.admin-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--m-terra, #a0613a);
+  border: 2px solid var(--m-cream, #f0e4cc);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.admin-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(106, 85, 64, 0.4);
+}
+
 /* ===== SCENE ROWS IN MODAL ===== */
 .admin-scene-row {
   display: flex;

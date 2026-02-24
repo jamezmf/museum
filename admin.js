@@ -98,6 +98,7 @@
       case 'mode-add-link': setMode('add-link'); break;
       case 'save-view':     doSaveView(); break;
       case 'edit-scenes':   showScenesModal(); break;
+      case 'edit-limits':   showViewLimitsModal(); break;
       case 'save':          doSave(); break;
       case 'export':        doExport(); break;
       case 'firebase-cfg':  showFirebaseModal(); break;
@@ -520,6 +521,83 @@
       }},
       { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
     ]);
+  }
+
+  // ========================================
+  // ===== VIEW LIMITS PER SCENE
+  // ========================================
+  function showViewLimitsModal() {
+    var cur = window.TOUR.currentScene;
+    if (!cur) { notify('\u041D\u0435\u0442 \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0439 \u0441\u0446\u0435\u043d\u044b'); return; }
+    var sd = sceneDataById(cur.data.id);
+    if (!sd) return;
+
+    var vl = sd.viewLimits || {};
+    var maxUp = vl.maxUpEdge != null ? vl.maxUpEdge : 50;
+    var maxDown = vl.maxDownEdge != null ? vl.maxDownEdge : 50;
+    var minFov = vl.minFov != null ? vl.minFov : 30;
+    var maxFov = vl.maxFov != null ? vl.maxFov : 120;
+
+    var content =
+      '<p class="admin-hint">\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0443\u0433\u043b\u043e\u0432 \u043e\u0431\u0437\u043e\u0440\u0430 \u0434\u043b\u044f \u0441\u0446\u0435\u043d\u044b: <b>' + escapeHtml(sd.name) + '</b></p>' +
+      '<label>\u2191 \u041c\u0430\u043a\u0441. \u0432\u0432\u0435\u0440\u0445 (\u00b0): <b id="valUp">' + maxUp + '</b></label>' +
+      '<input type="range" id="adminLimitUp" class="admin-range" min="10" max="90" step="1" value="' + maxUp + '">' +
+      '<label>\u2193 \u041c\u0430\u043a\u0441. \u0432\u043d\u0438\u0437 (\u00b0): <b id="valDown">' + maxDown + '</b></label>' +
+      '<input type="range" id="adminLimitDown" class="admin-range" min="10" max="90" step="1" value="' + maxDown + '">' +
+      '<label>\uD83D\uDD0D \u041c\u0438\u043d. FOV / \u043c\u0430\u043a\u0441. \u0437\u0443\u043c (\u00b0): <b id="valMinFov">' + minFov + '</b></label>' +
+      '<input type="range" id="adminMinFov" class="admin-range" min="10" max="90" step="1" value="' + minFov + '">' +
+      '<label>\uD83D\uDD2D \u041c\u0430\u043a\u0441. FOV / \u043c\u0438\u043d. \u0437\u0443\u043c (\u00b0): <b id="valMaxFov">' + maxFov + '</b></label>' +
+      '<input type="range" id="adminMaxFov" class="admin-range" min="60" max="150" step="1" value="' + maxFov + '">';
+
+    var modal = createModal('\u0423\u0433\u043b\u044b \u043e\u0431\u0437\u043e\u0440\u0430', content, [
+      { text: '\u041f\u0440\u0438\u043c\u0435\u043d\u0438\u0442\u044c \u043a\u043e \u0432\u0441\u0435\u043c', onClick: function() {
+        var limits = readLimitInputs();
+        adminData.scenes.forEach(function(s) {
+          s.viewLimits = JSON.parse(JSON.stringify(limits));
+          window.TOUR.updateViewLimits(s.id, limits);
+        });
+        closeModal();
+        autoSave();
+        notify('\u0423\u0433\u043b\u044b \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d\u044b \u043a\u043e \u0432\u0441\u0435\u043c \u0441\u0446\u0435\u043d\u0430\u043c');
+      }},
+      { text: '\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c', primary: true, onClick: function() {
+        var limits = readLimitInputs();
+        sd.viewLimits = limits;
+        window.TOUR.updateViewLimits(sd.id, limits);
+        closeModal();
+        autoSave();
+        notify('\u0423\u0433\u043b\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b \u0434\u043b\u044f \u00ab' + sd.name + '\u00bb');
+      }},
+      { text: '\u041e\u0442\u043c\u0435\u043d\u0430', onClick: closeModal }
+    ]);
+
+    // Live preview while dragging sliders.
+    ['adminLimitUp', 'adminLimitDown', 'adminMinFov', 'adminMaxFov'].forEach(function(id) {
+      var el = modal.querySelector('#' + id);
+      if (!el) return;
+      el.addEventListener('input', function() {
+        updateSliderLabels(modal);
+        var limits = readLimitInputs();
+        window.TOUR.updateViewLimits(sd.id, limits);
+      });
+    });
+  }
+
+  function readLimitInputs() {
+    return {
+      maxUpEdge: parseInt(document.getElementById('adminLimitUp').value, 10),
+      maxDownEdge: parseInt(document.getElementById('adminLimitDown').value, 10),
+      minFov: parseInt(document.getElementById('adminMinFov').value, 10),
+      maxFov: parseInt(document.getElementById('adminMaxFov').value, 10)
+    };
+  }
+
+  function updateSliderLabels(modal) {
+    var v;
+    v = modal.querySelector('#adminLimitUp'); if (v) modal.querySelector('#valUp').textContent = v.value;
+    v = modal.querySelector('#adminLimitDown'); if (v) modal.querySelector('#valDown').textContent = v.value;
+    v = modal.querySelector('#adminMinFov'); if (v) modal.querySelector('#valMinFov').textContent = v.value;
+    v = modal.querySelector('#adminMaxFov'); if (v) modal.querySelector('#valMaxFov').textContent = v.value;
   }
 
   // ========================================

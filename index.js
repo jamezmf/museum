@@ -80,21 +80,23 @@
       { cubeMapPreviewUrl: urlPrefix + "/" + data.id + "/preview.jpg" });
     var geometry = new Marzipano.CubeGeometry(data.levels);
 
-    // Dynamic pitch limiter: accounts for current FOV so viewport edges
-    // never reach the ceiling or the floor (tripod).
-    // Positive pitch = looking down, negative = looking up.
-    var maxUpEdge = 50 * Math.PI / 180;    // top edge: max 50° above horizontal
-    var maxDownEdge = 50 * Math.PI / 180;  // bottom edge: max 50° below horizontal
+    // Per-scene view limits with defaults.
+    var vl = data.viewLimits || {};
+    var sceneViewLimits = {
+      maxUpEdge: (vl.maxUpEdge != null ? vl.maxUpEdge : 50) * Math.PI / 180,
+      maxDownEdge: (vl.maxDownEdge != null ? vl.maxDownEdge : 50) * Math.PI / 180,
+      minFov: (vl.minFov != null ? vl.minFov : 30) * Math.PI / 180,
+      maxFov: (vl.maxFov != null ? vl.maxFov : 120) * Math.PI / 180
+    };
     var limiter = Marzipano.util.compose(
       Marzipano.RectilinearView.limit.traditional(
-        data.faceSize, 100 * Math.PI / 180, 120 * Math.PI / 180),
+        data.faceSize, sceneViewLimits.minFov, sceneViewLimits.maxFov),
       function(params) {
         var halfVfov = (params.fov || 0) / 2;
-        var minPitch = -maxUpEdge + halfVfov;   // ceiling limit
-        var maxPitch = maxDownEdge - halfVfov;   // floor limit
-        // If constraints conflict at very wide FOV, lock to center
+        var minPitch = -sceneViewLimits.maxUpEdge + halfVfov;
+        var maxPitch = sceneViewLimits.maxDownEdge - halfVfov;
         if (minPitch > maxPitch) {
-          minPitch = maxPitch = (maxDownEdge - maxUpEdge) / 2;
+          minPitch = maxPitch = (sceneViewLimits.maxDownEdge - sceneViewLimits.maxUpEdge) / 2;
         }
         if (params.pitch < minPitch) { params.pitch = minPitch; }
         if (params.pitch > maxPitch) { params.pitch = maxPitch; }
@@ -138,7 +140,8 @@
     return {
       data: data,
       scene: scene,
-      view: view
+      view: view,
+      viewLimits: sceneViewLimits
     };
   });
 
@@ -480,6 +483,19 @@
     });
   }
 
+  // Update view limits at runtime (called by admin panel).
+  function updateViewLimits(sceneId, limits) {
+    var s = findSceneById(sceneId);
+    if (!s) return;
+    s.viewLimits.maxUpEdge = limits.maxUpEdge * Math.PI / 180;
+    s.viewLimits.maxDownEdge = limits.maxDownEdge * Math.PI / 180;
+    s.viewLimits.minFov = limits.minFov * Math.PI / 180;
+    s.viewLimits.maxFov = limits.maxFov * Math.PI / 180;
+    // Force re-apply by nudging the view.
+    var v = s.view;
+    v.setParameters({ yaw: v.yaw(), pitch: v.pitch(), fov: v.fov() });
+  }
+
   // Expose tour API for admin panel.
   window.TOUR = {
     viewer: viewer,
@@ -490,7 +506,8 @@
     findSceneById: findSceneById,
     findSceneDataById: findSceneDataById,
     createInfoHotspotElement: createInfoHotspotElement,
-    createLinkHotspotElement: createLinkHotspotElement
+    createLinkHotspotElement: createLinkHotspotElement,
+    updateViewLimits: updateViewLimits
   };
 
   // Display the initial scene.
