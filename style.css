@@ -947,55 +947,167 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   transition: opacity 0.3s ease-in-out 0.4s;
 }
 
-/* ===== IMAGE INSIDE INFO HOTSPOT ===== */
-.info-hotspot-image-wrap {
-  overflow: hidden;
-  border-radius: 4px;
-  border: 1px solid var(--m-border);
-  background: rgba(0,0,0,0.15);
+/* ===== IMAGE PANEL (separate floating panel outside text) ===== */
+.info-hotspot-image-panel {
+  position: absolute;
+  background: var(--m-panel);
+  border: 2px solid var(--m-terra);
+  border-radius: 5px;
+  padding: 6px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0s 0.3s, transform 0.3s;
+  z-index: 1;
 }
-.info-hotspot-image-wrap img {
+
+.desktop .info-hotspot.visible .info-hotspot-image-panel {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s 0.4s, visibility 0s 0.1s, transform 0.3s 0.4s;
+}
+
+/* Image frame with zoom overlay */
+.info-hotspot-image-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.info-hotspot-image-frame img {
   display: block;
   width: 100%;
   height: auto;
-  object-fit: cover;
-  cursor: pointer;
-  transition: transform 0.3s;
+  max-height: 320px;
+  object-fit: contain;
+  transition: transform 0.35s;
+  border-radius: 3px;
 }
-.info-hotspot-image-wrap img:hover { transform: scale(1.03); }
-.info-hotspot-image-wrap .info-hotspot-image-caption {
+
+.info-hotspot-image-frame:hover img {
+  transform: scale(1.02);
+}
+
+/* Zoom / magnifier overlay */
+.info-hotspot-image-zoom {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: rgba(36, 28, 20, 0.75);
+  border: 1.5px solid var(--m-terra);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-hotspot-image-frame:hover .info-hotspot-image-zoom {
+  opacity: 1;
+}
+
+/* Magnifier icon via pseudo-elements */
+.info-hotspot-image-zoom::before {
+  content: '';
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--m-cream);
+  border-radius: 50%;
+  position: absolute;
+  top: 7px;
+  left: 7px;
+}
+
+.info-hotspot-image-zoom::after {
+  content: '';
+  width: 6px;
+  height: 2px;
+  background: var(--m-cream);
+  border-radius: 1px;
+  position: absolute;
+  bottom: 7px;
+  right: 5px;
+  transform: rotate(45deg);
+}
+
+/* Caption below image */
+.info-hotspot-image-panel .info-hotspot-image-caption {
   font-family: 'Forum', serif;
   font-size: 13px;
   color: rgba(240,228,204,0.65);
-  padding: 5px 8px;
+  padding: 5px 4px 2px;
   text-align: center;
   font-style: italic;
+  line-height: 1.3;
 }
 
-/* Image position: top */
-.info-hotspot-text.img-pos-top .info-hotspot-image-wrap { margin-bottom: 12px; }
-.info-hotspot-text.img-pos-top .info-hotspot-image-wrap img { max-height: 200px; }
+/* === Panel positions === */
 
-/* Image position: bottom */
-.info-hotspot-text.img-pos-bottom .info-hotspot-image-wrap { margin-top: 12px; }
-.info-hotspot-text.img-pos-bottom .info-hotspot-image-wrap img { max-height: 200px; }
+/* RIGHT of text block (default) */
+.info-hotspot-image-panel.img-panel-right {
+  top: 50px;
+  left: 380px;
+  width: 340px;
+  transform: translateX(16px);
+}
+.desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-right {
+  transform: translateX(0);
+}
 
-/* Image position: left */
-.info-hotspot-text.img-pos-left { display: flex; flex-wrap: nowrap; gap: 12px; }
-.info-hotspot-text.img-pos-left .info-hotspot-image-wrap { flex: 0 0 45%; max-width: 45%; }
-.info-hotspot-text.img-pos-left .info-hotspot-image-wrap img { max-height: 180px; }
-.info-hotspot-text.img-pos-left .info-hotspot-text-inner { flex: 1 1 0; min-width: 0; }
+/* LEFT of text block */
+.info-hotspot-image-panel.img-panel-left {
+  top: 50px;
+  right: 380px;
+  left: auto;
+  width: 340px;
+  transform: translateX(-16px);
+}
+.desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-left {
+  transform: translateX(0);
+}
 
-/* Image position: right */
-.info-hotspot-text.img-pos-right { display: flex; flex-wrap: nowrap; gap: 12px; }
-.info-hotspot-text.img-pos-right .info-hotspot-image-wrap { flex: 0 0 45%; max-width: 45%; order: 2; }
-.info-hotspot-text.img-pos-right .info-hotspot-image-wrap img { max-height: 180px; }
-.info-hotspot-text.img-pos-right .info-hotspot-text-inner { flex: 1 1 0; min-width: 0; order: 1; }
+/* TOP — above the header */
+.info-hotspot-image-panel.img-panel-top {
+  bottom: 50px;
+  left: 0;
+  top: auto;
+  width: 370px;
+  transform: translateY(-12px);
+}
+.desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-top {
+  transform: translateY(0);
+}
 
-/* Wider text panel when image is present */
-.info-hotspot .info-hotspot-text.has-image {
-  width: 440px;
-  max-height: 340px;
+/* BOTTOM — below the text block */
+.info-hotspot-image-panel.img-panel-bottom {
+  top: auto;
+  left: 0;
+  width: 370px;
+  transform: translateY(12px);
+}
+/* JS sets the top dynamically, CSS just handles animation */
+.desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-bottom {
+  transform: translateY(0);
+}
+
+/* Mobile — image panel inside modal */
+.info-hotspot-modal .info-hotspot-image-panel {
+  position: relative;
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  width: 100%;
+  top: auto; left: auto; right: auto; bottom: auto;
+  margin-top: 10px;
+  border: 1px solid var(--m-terra);
+}
+
+.info-hotspot-modal .info-hotspot-image-frame img {
+  max-height: none;
 }
 
 /* ===== STANDALONE IMAGE HOTSPOT ===== */

@@ -422,64 +422,53 @@
     header.appendChild(titleWrapper);
     header.appendChild(closeWrapper);
 
-    // Create text element (with optional image).
+    // Create text element.
     var text = document.createElement('div');
     text.classList.add('info-hotspot-text');
-
-    var hasImage = hotspot.image && hotspot.image.url;
-    var imgPos = hasImage ? (hotspot.image.position || 'top') : '';
-
-    if (hasImage) {
-      text.classList.add('has-image', 'img-pos-' + imgPos);
-    }
-
-    // Build image element if present.
-    var imageWrap = null;
-    if (hasImage) {
-      imageWrap = document.createElement('div');
-      imageWrap.classList.add('info-hotspot-image-wrap');
-      var img = document.createElement('img');
-      img.src = hotspot.image.url;
-      img.alt = hotspot.image.caption || hotspot.title || '';
-      img.addEventListener('click', function(e) {
-        e.stopPropagation();
-        openLightbox(hotspot.image.url, hotspot.image.caption || hotspot.title || '');
-      });
-      imageWrap.appendChild(img);
-      if (hotspot.image.caption) {
-        var cap = document.createElement('div');
-        cap.classList.add('info-hotspot-image-caption');
-        cap.textContent = hotspot.image.caption;
-        imageWrap.appendChild(cap);
-      }
-    }
-
-    // Assemble text content depending on position.
-    if (hasImage && (imgPos === 'top')) {
-      text.appendChild(imageWrap);
-      var textInner = document.createElement('div');
-      textInner.classList.add('info-hotspot-text-inner');
-      textInner.innerHTML = hotspot.text;
-      text.appendChild(textInner);
-    } else if (hasImage && (imgPos === 'left' || imgPos === 'right')) {
-      text.appendChild(imageWrap);
-      var textInner = document.createElement('div');
-      textInner.classList.add('info-hotspot-text-inner');
-      textInner.innerHTML = hotspot.text;
-      text.appendChild(textInner);
-    } else if (hasImage && imgPos === 'bottom') {
-      var textInner = document.createElement('div');
-      textInner.classList.add('info-hotspot-text-inner');
-      textInner.innerHTML = hotspot.text;
-      text.appendChild(textInner);
-      text.appendChild(imageWrap);
-    } else {
-      text.innerHTML = hotspot.text;
-    }
+    text.innerHTML = hotspot.text;
 
     // Place header and text into wrapper element.
     wrapper.appendChild(header);
     wrapper.appendChild(text);
+
+    // Build separate image panel if present (floats outside text block).
+    var hasImage = hotspot.image && hotspot.image.url;
+    var imgPos = hasImage ? (hotspot.image.position || 'right') : '';
+    var imagePanel = null;
+
+    if (hasImage) {
+      imagePanel = document.createElement('div');
+      imagePanel.classList.add('info-hotspot-image-panel', 'img-panel-' + imgPos);
+
+      var imgFrame = document.createElement('div');
+      imgFrame.classList.add('info-hotspot-image-frame');
+
+      var img = document.createElement('img');
+      img.src = hotspot.image.url;
+      img.alt = hotspot.image.caption || hotspot.title || '';
+      imgFrame.appendChild(img);
+
+      // Zoom overlay icon
+      var zoomIcon = document.createElement('div');
+      zoomIcon.classList.add('info-hotspot-image-zoom');
+      imgFrame.appendChild(zoomIcon);
+
+      imgFrame.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openLightbox(hotspot.image.url, hotspot.image.caption || hotspot.title || '');
+      });
+
+      imagePanel.appendChild(imgFrame);
+
+      if (hotspot.image.caption) {
+        var cap = document.createElement('div');
+        cap.classList.add('info-hotspot-image-caption');
+        cap.textContent = hotspot.image.caption;
+        imagePanel.appendChild(cap);
+      }
+
+      wrapper.appendChild(imagePanel);
+    }
 
     // Create a modal for the hotspot content to appear on mobile mode.
     var modal = document.createElement('div');
@@ -490,6 +479,16 @@
     var toggle = function() {
       wrapper.classList.toggle('visible');
       modal.classList.toggle('visible');
+      // Position bottom image panel dynamically based on text height
+      if (hasImage && imgPos === 'bottom' && wrapper.classList.contains('visible')) {
+        requestAnimationFrame(function() {
+          var bp = wrapper.querySelector('.img-panel-bottom');
+          if (bp) {
+            var th = text.scrollHeight || text.offsetHeight;
+            bp.style.top = (50 + th + 6) + 'px';
+          }
+        });
+      }
     };
 
     // Show content when hotspot is clicked.
