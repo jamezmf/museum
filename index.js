@@ -122,7 +122,7 @@
     });
 
     // Create link hotspots.
-    data.linkHotspots.forEach(function(hotspot) {
+    (data.linkHotspots || []).forEach(function(hotspot) {
       var element = createLinkHotspotElement(hotspot);
       scene.hotspotContainer().createHotspot(element, {
         yaw: hotspot.yaw,
@@ -131,7 +131,7 @@
     });
 
     // Create info hotspots.
-    data.infoHotspots.forEach(function(hotspot) {
+    (data.infoHotspots || []).forEach(function(hotspot) {
       var element = createInfoHotspotElement(hotspot);
       scene.hotspotContainer().createHotspot(element, {
         yaw: hotspot.yaw,
@@ -731,35 +731,5 @@
 
   // Display the initial scene.
   switchScene(scenes[0]);
-
-  // Async: check Firebase for newer data after page loads.
-  (function checkFirebase() {
-    try {
-      var raw = localStorage.getItem('museum_firebase_config');
-      if (!raw) return;
-      var config = JSON.parse(raw);
-      if (!config || !config.databaseURL) return;
-      // Prevent infinite reload loop: only once per session.
-      if (sessionStorage.getItem('fb_checked')) return;
-      sessionStorage.setItem('fb_checked', '1');
-
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', config.databaseURL + '/tourData.json');
-      xhr.onload = function() {
-        if (xhr.status !== 200) return;
-        try {
-          var fbData = JSON.parse(xhr.responseText);
-          if (!fbData || !fbData.scenes || !fbData.scenes.length) return;
-          var currentJSON = localStorage.getItem('museum_tour_data') || '';
-          var newJSON = JSON.stringify(fbData);
-          if (newJSON !== currentJSON) {
-            localStorage.setItem('museum_tour_data', newJSON);
-            location.reload();
-          }
-        } catch(e) {}
-      };
-      xhr.send();
-    } catch(e) {}
-  })();
 
 })();

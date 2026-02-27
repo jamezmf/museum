@@ -13,6 +13,15 @@
   var LS_FIREBASE_KEY = 'museum_firebase_config';
   var LS_IMGBB_KEY = 'museum_imgbb_apikey';
 
+  // Default API keys (auto-applied if localStorage is empty)
+  var DEFAULT_FIREBASE_CONFIG = {
+    apiKey: atob('QUl6YVN5QnN4VUJKQmFtZHRVZktxblZ2S0NGMy12VmNvRmtTUjFB'),
+    authDomain: 'museum-c2412.firebaseapp.com',
+    databaseURL: 'https://museum-c2412-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId: 'museum-c2412'
+  };
+  var DEFAULT_IMGBB_KEY = atob('ZTA3OWViZGNlOTc2OWJkOGJkYzRkYmUzOGJjNzkyZWY=');
+
   // Only activate if ?admin is in URL
   if (location.search.indexOf('admin') === -1) return;
 
@@ -294,7 +303,7 @@
   // ===== IMAGE UPLOAD (ImgBB)
   // ========================================
   function getImgBBKey() {
-    return (localStorage.getItem(LS_IMGBB_KEY) || '').trim();
+    return (localStorage.getItem(LS_IMGBB_KEY) || DEFAULT_IMGBB_KEY || '').trim();
   }
 
   function uploadToImgBB(file, callback) {
@@ -919,8 +928,14 @@
       var config = JSON.parse(localStorage.getItem(LS_FIREBASE_KEY));
       if (config && config.apiKey && config.databaseURL) {
         loadFirebaseSDK(config);
+        return;
       }
     } catch (e) {}
+    // No saved config — apply defaults & auto-connect
+    if (DEFAULT_FIREBASE_CONFIG && DEFAULT_FIREBASE_CONFIG.apiKey) {
+      localStorage.setItem(LS_FIREBASE_KEY, JSON.stringify(DEFAULT_FIREBASE_CONFIG));
+      loadFirebaseSDK(DEFAULT_FIREBASE_CONFIG);
+    }
   }
 
   function loadFirebaseSDK(config) {
@@ -950,6 +965,14 @@
       firebaseDB.ref('tourData').once('value').then(function(snapshot) {
         var fbData = snapshot.val();
         if (fbData && fbData.scenes) {
+          // Firebase strips empty arrays — restore them so Marzipano won't crash
+          if (Array.isArray(fbData.scenes)) {
+            fbData.scenes.forEach(function(sc) {
+              if (!sc.linkHotspots) sc.linkHotspots = [];
+              if (!sc.infoHotspots) sc.infoHotspots = [];
+              if (!sc.imageHotspots) sc.imageHotspots = [];
+            });
+          }
           adminData = fbData;
           localStorage.setItem(LS_DATA_KEY, JSON.stringify(adminData));
           notify('\u0414\u0430\u043D\u043D\u044B\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u044B \u0438\u0437 Firebase');
