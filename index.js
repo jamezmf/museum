@@ -437,6 +437,7 @@
     var imagePanel = null;
 
     if (hasImage) {
+      wrapper.classList.add('has-img-' + imgPos);
       imagePanel = document.createElement('div');
       imagePanel.classList.add('info-hotspot-image-panel', 'img-panel-' + imgPos);
 
@@ -477,6 +478,15 @@
     document.body.appendChild(modal);
 
     var toggle = function() {
+      // Close all other open info hotspots first
+      if (!wrapper.classList.contains('visible')) {
+        document.querySelectorAll('.info-hotspot.visible').forEach(function(other) {
+          if (other !== wrapper) other.classList.remove('visible');
+        });
+        document.querySelectorAll('.info-hotspot-modal.visible').forEach(function(m) {
+          if (m !== modal) m.classList.remove('visible');
+        });
+      }
       wrapper.classList.toggle('visible');
       modal.classList.toggle('visible');
       // Position bottom image panel dynamically based on text height
@@ -485,7 +495,7 @@
           var bp = wrapper.querySelector('.img-panel-bottom');
           if (bp) {
             var th = text.scrollHeight || text.offsetHeight;
-            bp.style.top = (50 + th + 6) + 'px';
+            bp.style.top = (50 + th) + 'px';
           }
         });
       }
