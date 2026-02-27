@@ -404,13 +404,6 @@
       buildUploadZoneHTML('adminInfoImgUrl') +
       '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C \u043A \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044E:</label>' +
       '<input type="text" id="adminInfoImgCaption" class="admin-input" placeholder="\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E">' +
-      '<label>\u041F\u043E\u0437\u0438\u0446\u0438\u044F \u043F\u0430\u043D\u0435\u043B\u0438 \u0441 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435\u043C:</label>' +
-      '<select id="adminInfoImgPos" class="admin-input">' +
-        '<option value="right">\u0421\u043F\u0440\u0430\u0432\u0430 \u043E\u0442 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
-        '<option value="left">\u0421\u043B\u0435\u0432\u0430 \u043E\u0442 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
-        '<option value="top">\u0421\u0432\u0435\u0440\u0445\u0443 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
-        '<option value="bottom">\u0421\u043D\u0438\u0437\u0443 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
-      '</select>' +
       '<div class="admin-coords">yaw: ' + coords.yaw.toFixed(4) + '  pitch: ' + coords.pitch.toFixed(4) + '</div>';
 
     var modal = createModal('\u041D\u043E\u0432\u044B\u0439 \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442', content, [
@@ -419,9 +412,8 @@
         var text = document.getElementById('adminInfoText').value;
         var imgUrl = document.getElementById('adminInfoImgUrl').value.trim();
         var imgCaption = document.getElementById('adminInfoImgCaption').value.trim();
-        var imgPos = document.getElementById('adminInfoImgPos').value;
         if (!title) { alert('\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A'); return; }
-        var image = imgUrl ? { url: imgUrl, caption: imgCaption, position: imgPos } : null;
+        var image = imgUrl ? { url: imgUrl, caption: imgCaption } : null;
         addInfoHotspot(coords.yaw, coords.pitch, title, text, image);
         closeModal();
         notify('\u0418\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D');
@@ -533,14 +525,7 @@
       '<input type="text" id="adminInfoImgUrl" class="admin-input" value="' + escapeAttr(existingImg.url || '') + '">' +
       buildUploadZoneHTML('adminInfoImgUrl') +
       '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
-      '<input type="text" id="adminInfoImgCaption" class="admin-input" value="' + escapeAttr(existingImg.caption || '') + '">' +
-      '<label>\u041F\u043E\u0437\u0438\u0446\u0438\u044F:</label>' +
-      '<select id="adminInfoImgPos" class="admin-input">' +
-        '<option value="right"' + (existingImg.position === 'right' || !existingImg.position ? ' selected' : '') + '>\u0421\u043F\u0440\u0430\u0432\u0430</option>' +
-        '<option value="left"' + (existingImg.position === 'left' ? ' selected' : '') + '>\u0421\u043B\u0435\u0432\u0430</option>' +
-        '<option value="top"' + (existingImg.position === 'top' ? ' selected' : '') + '>\u0421\u0432\u0435\u0440\u0445\u0443</option>' +
-        '<option value="bottom"' + (existingImg.position === 'bottom' ? ' selected' : '') + '>\u0421\u043D\u0438\u0437\u0443</option>' +
-      '</select>';
+      '<input type="text" id="adminInfoImgCaption" class="admin-input" value="' + escapeAttr(existingImg.caption || '') + '">';
 
     createModal('\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442', content, [
       { text: '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C', primary: true, onClick: function() {
@@ -548,13 +533,12 @@
         var text = document.getElementById('adminInfoText').value;
         var imgUrl = document.getElementById('adminInfoImgUrl').value.trim();
         var imgCaption = document.getElementById('adminInfoImgCaption').value.trim();
-        var imgPos = document.getElementById('adminInfoImgPos').value;
 
         if (dataIndex >= 0) {
           sd.infoHotspots[dataIndex].title = title;
           sd.infoHotspots[dataIndex].text = text;
           if (imgUrl) {
-            sd.infoHotspots[dataIndex].image = { url: imgUrl, caption: imgCaption, position: imgPos };
+            sd.infoHotspots[dataIndex].image = { url: imgUrl, caption: imgCaption };
           } else {
             delete sd.infoHotspots[dataIndex].image;
           }
