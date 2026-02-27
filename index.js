@@ -427,49 +427,29 @@
     text.classList.add('info-hotspot-text');
     text.innerHTML = hotspot.text;
 
-    // Place header and text into wrapper element.
-    wrapper.appendChild(header);
-    wrapper.appendChild(text);
-
-    // Build separate image panel if present (floats outside text block).
+    // If image is present, append a small clickable thumbnail strip at the bottom.
     var hasImage = hotspot.image && hotspot.image.url;
-    var imgPos = hasImage ? (hotspot.image.position || 'right') : '';
-    var imagePanel = null;
-
     if (hasImage) {
-      wrapper.classList.add('has-img-' + imgPos);
-      imagePanel = document.createElement('div');
-      imagePanel.classList.add('info-hotspot-image-panel', 'img-panel-' + imgPos);
-
-      var imgFrame = document.createElement('div');
-      imgFrame.classList.add('info-hotspot-image-frame');
-
-      var img = document.createElement('img');
-      img.src = hotspot.image.url;
-      img.alt = hotspot.image.caption || hotspot.title || '';
-      imgFrame.appendChild(img);
-
-      // Zoom overlay icon
-      var zoomIcon = document.createElement('div');
-      zoomIcon.classList.add('info-hotspot-image-zoom');
-      imgFrame.appendChild(zoomIcon);
-
-      imgFrame.addEventListener('click', function(e) {
+      var thumb = document.createElement('div');
+      thumb.classList.add('info-hotspot-thumb');
+      var thumbImg = document.createElement('img');
+      thumbImg.src = hotspot.image.url;
+      thumbImg.alt = hotspot.image.caption || hotspot.title || '';
+      thumb.appendChild(thumbImg);
+      var thumbHint = document.createElement('span');
+      thumbHint.classList.add('info-hotspot-thumb-hint');
+      thumbHint.textContent = hotspot.image.caption || '\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0434\u043B\u044F \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u044F';
+      thumb.appendChild(thumbHint);
+      thumb.addEventListener('click', function(e) {
         e.stopPropagation();
         openLightbox(hotspot.image.url, hotspot.image.caption || hotspot.title || '');
       });
-
-      imagePanel.appendChild(imgFrame);
-
-      if (hotspot.image.caption) {
-        var cap = document.createElement('div');
-        cap.classList.add('info-hotspot-image-caption');
-        cap.textContent = hotspot.image.caption;
-        imagePanel.appendChild(cap);
-      }
-
-      wrapper.appendChild(imagePanel);
+      text.appendChild(thumb);
     }
+
+    // Place header and text into wrapper element.
+    wrapper.appendChild(header);
+    wrapper.appendChild(text);
 
     // Create a modal for the hotspot content to appear on mobile mode.
     var modal = document.createElement('div');
@@ -489,16 +469,6 @@
       }
       wrapper.classList.toggle('visible');
       modal.classList.toggle('visible');
-      // Position bottom image panel dynamically based on text height
-      if (hasImage && imgPos === 'bottom' && wrapper.classList.contains('visible')) {
-        requestAnimationFrame(function() {
-          var bp = wrapper.querySelector('.img-panel-bottom');
-          if (bp) {
-            var th = text.offsetHeight || text.scrollHeight;
-            bp.style.top = (50 + th) + 'px';
-          }
-        });
-      }
     };
 
     // Show content when hotspot is clicked.

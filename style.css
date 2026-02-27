@@ -819,7 +819,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   position: absolute;
   width: 370px;
   height: auto;
-  max-height: 420px;
+  max-height: 250px;
   top: 50px;
   left: 0;
   padding: 16px;
@@ -848,8 +848,6 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   transform: perspective(200px) rotateX(0deg);
   transition: transform 0.3s 0.3s, visibility 0s 0s;
 }
-
-/* Remove radii on bottom when image is present (text flows after image) */
 
 /* ===== INFO HOTSPOT MODAL (mobile) ===== */
 .desktop .info-hotspot-modal { display: none; }
@@ -949,82 +947,39 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   transition: opacity 0.3s ease-in-out 0.4s;
 }
 
-/* ===== INLINE IMAGE BANNER (inside text panel) ===== */
-.info-hotspot-image-frame {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  line-height: 0;
-  margin: -16px -16px 12px -16px; /* bleed to panel edges, gap below */
-}
-
-.info-hotspot-image-frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 320px;
-  object-fit: cover;
-  transition: transform 0.35s;
-}
-
-.info-hotspot-image-frame:hover img {
-  transform: scale(1.03);
-}
-
-/* Zoom / magnifier overlay */
-.info-hotspot-image-zoom {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  background: rgba(36, 28, 20, 0.7);
-  border: 1.5px solid var(--m-terra);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.25s;
+/* ===== THUMBNAIL STRIP (inside text panel, bottom) ===== */
+.info-hotspot-thumb {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(160, 97, 58, 0.15);
+  border: 1px solid rgba(160, 97, 58, 0.35);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  line-height: 0;
 }
 
-.info-hotspot-image-frame:hover .info-hotspot-image-zoom {
-  opacity: 1;
+.info-hotspot-thumb:hover {
+  background: rgba(160, 97, 58, 0.3);
 }
 
-/* Magnifier icon via pseudo-elements */
-.info-hotspot-image-zoom::before {
-  content: '';
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--m-cream);
-  border-radius: 50%;
-  position: absolute;
-  top: 6px;
-  left: 6px;
+.info-hotspot-thumb img {
+  width: 80px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
-.info-hotspot-image-zoom::after {
-  content: '';
-  width: 5px;
-  height: 2px;
-  background: var(--m-cream);
-  border-radius: 1px;
-  position: absolute;
-  bottom: 6px;
-  right: 5px;
-  transform: rotate(45deg);
-}
-
-/* Caption below inline image */
-.info-hotspot-image-caption {
+.info-hotspot-thumb-hint {
   font-family: 'Forum', serif;
-  font-size: 12px;
-  color: rgba(240,228,204,0.6);
-  padding: 0 0 6px 0;
-  text-align: center;
-  font-style: italic;
+  font-size: 13px;
   line-height: 1.3;
+  color: var(--m-cream);
+  opacity: 0.7;
 }
 
 /* ===== STANDALONE IMAGE HOTSPOT ===== */
