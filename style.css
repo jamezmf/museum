@@ -849,10 +849,20 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   transition: transform 0.3s 0.3s, visibility 0s 0s;
 }
 
-/* Remove radii on edges that meet the image panel */
-.info-hotspot.has-img-right .info-hotspot-text { border-bottom-right-radius: 0; }
-.info-hotspot.has-img-left .info-hotspot-text  { border-bottom-left-radius: 0; }
-.info-hotspot.has-img-bottom .info-hotspot-text { border-bottom-right-radius: 0; border-bottom-left-radius: 0; }
+/* Remove radii & border on edges that meet the image panel */
+.info-hotspot.has-img-right .info-hotspot-text {
+  border-right: none;
+  border-bottom-right-radius: 0;
+}
+.info-hotspot.has-img-left .info-hotspot-text {
+  border-left: none;
+  border-bottom-left-radius: 0;
+}
+.info-hotspot.has-img-bottom .info-hotspot-text {
+  border-bottom: none;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
 
 /* ===== INFO HOTSPOT MODAL (mobile) ===== */
 .desktop .info-hotspot-modal { display: none; }
@@ -952,17 +962,17 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   transition: opacity 0.3s ease-in-out 0.4s;
 }
 
-/* ===== IMAGE PANEL (seamless, flush with text block) ===== */
+/* ===== IMAGE PANEL (frameless, no border) ===== */
 .info-hotspot-image-panel {
   position: absolute;
-  background: var(--m-panel);
-  border: 2px solid var(--m-terra);
+  background: none;
+  border: none;
   border-radius: 0;
   padding: 0;
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.3s, visibility 0s 0.3s, transform 0.3s;
-  z-index: 1;
+  z-index: 2;
   overflow: hidden;
 }
 
@@ -1042,68 +1052,68 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
 .info-hotspot-image-panel .info-hotspot-image-caption {
   font-family: 'Forum', serif;
   font-size: 12px;
-  color: rgba(240,228,204,0.55);
+  color: rgba(240,228,204,0.75);
   padding: 4px 8px;
   text-align: center;
   font-style: italic;
   line-height: 1.3;
-  background: var(--m-panel);
+  background: rgba(36,28,20,0.7);
 }
 
 /* === Panel positions === */
 
-/* RIGHT of text block (default) — flush, shared border */
+/* RIGHT of text block (default) — frameless */
 .info-hotspot-image-panel.img-panel-right {
   top: 50px;
   left: 370px;
   width: 340px;
-  border-left: none;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-radius: 5px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
   transform: translateX(12px);
 }
 .desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-right {
   transform: translateX(0);
 }
 
-/* LEFT of text block — flush, shared border */
+/* LEFT of text block — frameless */
 .info-hotspot-image-panel.img-panel-left {
   top: 50px;
   right: 0;
   left: auto;
   width: 340px;
-  border-right: none;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
+  border-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   transform: translateX(-12px);
 }
 .desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-left {
   transform: translateX(0);
 }
 
-/* TOP — above the header, flush */
+/* TOP — above the header, frameless */
 .info-hotspot-image-panel.img-panel-top {
   bottom: 50px;
   left: 0;
   top: auto;
   width: 370px;
-  border-bottom: none;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+  border-radius: 5px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   transform: translateY(-10px);
 }
 .desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-top {
   transform: translateY(0);
 }
 
-/* BOTTOM — below the text block, flush */
+/* BOTTOM — below the text block, frameless */
 .info-hotspot-image-panel.img-panel-bottom {
   top: auto;
   left: 0;
   width: 370px;
-  border-top: none;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-radius: 5px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   transform: translateY(10px);
 }
 .desktop .info-hotspot.visible .info-hotspot-image-panel.img-panel-bottom {

@@ -494,7 +494,7 @@
         requestAnimationFrame(function() {
           var bp = wrapper.querySelector('.img-panel-bottom');
           if (bp) {
-            var th = text.scrollHeight || text.offsetHeight;
+            var th = text.offsetHeight || text.scrollHeight;
             bp.style.top = (50 + th) + 'px';
           }
         });
