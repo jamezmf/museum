@@ -23,26 +23,6 @@
     } catch(e) { /* ignore parse errors */ }
   })();
 
-  // Try loading from Firebase REST API (cloud data overrides local).
-  (function() {
-    try {
-      var raw = localStorage.getItem('museum_firebase_config');
-      if (!raw) return;
-      var config = JSON.parse(raw);
-      if (!config || !config.databaseURL) return;
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', config.databaseURL + '/tourData.json', false); // sync
-      xhr.send();
-      if (xhr.status === 200) {
-        var fbData = JSON.parse(xhr.responseText);
-        if (fbData && fbData.scenes && fbData.scenes.length) {
-          data = fbData;
-          localStorage.setItem('museum_tour_data', JSON.stringify(fbData));
-        }
-      }
-    } catch(e) { /* Firebase unavailable — use local data */ }
-  })();
-
   // Grab elements from DOM.
   var panoElement = document.querySelector('#pano');
   var sceneNameElement = document.querySelector('#titleBar .sceneName');
@@ -751,5 +731,35 @@
 
   // Display the initial scene.
   switchScene(scenes[0]);
+
+  // Async: check Firebase for newer data after page loads.
+  (function checkFirebase() {
+    try {
+      var raw = localStorage.getItem('museum_firebase_config');
+      if (!raw) return;
+      var config = JSON.parse(raw);
+      if (!config || !config.databaseURL) return;
+      // Prevent infinite reload loop: only once per session.
+      if (sessionStorage.getItem('fb_checked')) return;
+      sessionStorage.setItem('fb_checked', '1');
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', config.databaseURL + '/tourData.json');
+      xhr.onload = function() {
+        if (xhr.status !== 200) return;
+        try {
+          var fbData = JSON.parse(xhr.responseText);
+          if (!fbData || !fbData.scenes || !fbData.scenes.length) return;
+          var currentJSON = localStorage.getItem('museum_tour_data') || '';
+          var newJSON = JSON.stringify(fbData);
+          if (newJSON !== currentJSON) {
+            localStorage.setItem('museum_tour_data', newJSON);
+            location.reload();
+          }
+        } catch(e) {}
+      };
+      xhr.send();
+    } catch(e) {}
+  })();
 
 })();
