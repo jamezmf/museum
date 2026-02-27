@@ -11,6 +11,7 @@
   var ADMIN_PASSWORD = 'admin';
   var LS_DATA_KEY = 'museum_tour_data';
   var LS_FIREBASE_KEY = 'museum_firebase_config';
+  var LS_IMGBB_KEY = 'museum_imgbb_apikey';
 
   // Only activate if ?admin is in URL
   if (location.search.indexOf('admin') === -1) return;
@@ -72,6 +73,7 @@
           mkBtn('save', '\uD83D\uDCBE', '\u0421\u043E\u0445\u0440.') +
           mkBtn('export', '\uD83D\uDCE5', '\u042D\u043A\u0441\u043F\u043E\u0440\u0442') +
           mkBtn('firebase-cfg', '\uD83D\uDD25', 'Firebase') +
+          mkBtn('imgbb-cfg', '\uD83C\uDF10', 'ImgBB') +
           mkBtn('reset', '\uD83D\uDD04', '\u0421\u0431\u0440\u043E\u0441') +
         '</div>' +
         '<div class="admin-mode-label">\u0420\u0435\u0436\u0438\u043C: <b>\u041F\u0440\u043E\u0441\u043C\u043E\u0442\u0440</b></div>' +
@@ -105,6 +107,7 @@
       case 'save':          doSave(); break;
       case 'export':        doExport(); break;
       case 'firebase-cfg':  showFirebaseModal(); break;
+      case 'imgbb-cfg':    showImgBBModal(); break;
       case 'reset':         doReset(); break;
     }
     // Highlight active mode button
@@ -288,6 +291,105 @@
   }
 
   // ========================================
+  // ===== IMAGE UPLOAD (ImgBB)
+  // ========================================
+  function getImgBBKey() {
+    return (localStorage.getItem(LS_IMGBB_KEY) || '').trim();
+  }
+
+  function uploadToImgBB(file, callback) {
+    var apiKey = getImgBBKey();
+    if (!apiKey) {
+      alert('\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 API-\u043A\u043B\u044E\u0447 ImgBB (\u043A\u043D\u043E\u043F\u043A\u0430 \uD83C\uDF10 ImgBB \u0432 \u0442\u0443\u043B\u0431\u0430\u0440\u0435)');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function() {
+      var base64 = reader.result.split(',')[1];
+      var fd = new FormData();
+      fd.append('key', apiKey);
+      fd.append('image', base64);
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://api.imgbb.com/1/upload');
+      xhr.onload = function() {
+        try {
+          var resp = JSON.parse(xhr.responseText);
+          if (resp.success) {
+            callback(null, resp.data.url);
+          } else {
+            callback(resp.error ? resp.error.message : '\u041E\u0448\u0438\u0431\u043A\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438');
+          }
+        } catch(e) {
+          callback('\u041E\u0448\u0438\u0431\u043A\u0430 \u043E\u0442\u0432\u0435\u0442\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430');
+        }
+      };
+      xhr.onerror = function() { callback('\u0421\u0435\u0442\u0435\u0432\u0430\u044F \u043E\u0448\u0438\u0431\u043A\u0430'); };
+      xhr.send(fd);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Returns HTML + wires up drag-drop/file-pick after modal is created.
+  function buildUploadZoneHTML(inputId) {
+    return '<div class="admin-upload-zone" id="uploadZone_' + inputId + '">' +
+      '<div class="admin-upload-icon">\uD83D\uDCE4</div>' +
+      '<div class="admin-upload-text">\u041F\u0435\u0440\u0435\u0442\u0430\u0449\u0438\u0442\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 \u0441\u044E\u0434\u0430</div>' +
+      '<div class="admin-upload-or">\u0438\u043B\u0438</div>' +
+      '<label class="admin-upload-btn">\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0444\u0430\u0439\u043B' +
+        '<input type="file" accept="image/*" style="display:none" id="uploadFile_' + inputId + '">' +
+      '</label>' +
+      '<div class="admin-upload-status" id="uploadStatus_' + inputId + '"></div>' +
+    '</div>';
+  }
+
+  function wireUploadZone(inputId) {
+    var zone = document.getElementById('uploadZone_' + inputId);
+    var fileInput = document.getElementById('uploadFile_' + inputId);
+    var status = document.getElementById('uploadStatus_' + inputId);
+    var urlInput = document.getElementById(inputId);
+    if (!zone || !fileInput || !urlInput) return;
+
+    function handleFile(file) {
+      if (!file || !file.type.match(/^image\//)) {
+        status.textContent = '\u042D\u0442\u043E \u043D\u0435 \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435';
+        status.className = 'admin-upload-status error';
+        return;
+      }
+      if (file.size > 32 * 1024 * 1024) {
+        status.textContent = '\u0424\u0430\u0439\u043B \u0441\u043B\u0438\u0448\u043A\u043E\u043C \u0431\u043E\u043B\u044C\u0448\u043E\u0439 (\u043C\u0430\u043A\u0441. 32MB)';
+        status.className = 'admin-upload-status error';
+        return;
+      }
+      status.textContent = '\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...';
+      status.className = 'admin-upload-status loading';
+      zone.classList.add('uploading');
+      uploadToImgBB(file, function(err, url) {
+        zone.classList.remove('uploading');
+        if (err) {
+          status.textContent = '\u041E\u0448\u0438\u0431\u043A\u0430: ' + err;
+          status.className = 'admin-upload-status error';
+        } else {
+          urlInput.value = url;
+          status.textContent = '\u2705 \u0417\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E!';
+          status.className = 'admin-upload-status success';
+        }
+      });
+    }
+
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+  }
+
+  // ========================================
   // ===== ADD INFO HOTSPOT
   // ========================================
   function showAddInfoModal(coords) {
@@ -299,6 +401,7 @@
       '<hr class="admin-divider">' +
       '<label>\uD83D\uDDBC \u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 (URL, \u043D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E):</label>' +
       '<input type="text" id="adminInfoImgUrl" class="admin-input" placeholder="https://example.com/photo.jpg">' +
+      buildUploadZoneHTML('adminInfoImgUrl') +
       '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C \u043A \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044E:</label>' +
       '<input type="text" id="adminInfoImgCaption" class="admin-input" placeholder="\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E">' +
       '<label>\u041F\u043E\u0437\u0438\u0446\u0438\u044F \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F:</label>' +
@@ -310,7 +413,7 @@
       '</select>' +
       '<div class="admin-coords">yaw: ' + coords.yaw.toFixed(4) + '  pitch: ' + coords.pitch.toFixed(4) + '</div>';
 
-    createModal('\u041D\u043E\u0432\u044B\u0439 \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442', content, [
+    var modal = createModal('\u041D\u043E\u0432\u044B\u0439 \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442', content, [
       { text: '\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C', primary: true, onClick: function() {
         var title = document.getElementById('adminInfoTitle').value;
         var text = document.getElementById('adminInfoText').value;
@@ -325,6 +428,7 @@
       }},
       { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
     ]);
+    wireUploadZone('adminInfoImgUrl');
   }
 
   function addInfoHotspot(yaw, pitch, title, text, image) {
@@ -427,6 +531,7 @@
       '<hr class="admin-divider">' +
       '<label>\uD83D\uDDBC \u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 (URL):</label>' +
       '<input type="text" id="adminInfoImgUrl" class="admin-input" value="' + escapeAttr(existingImg.url || '') + '">' +
+      buildUploadZoneHTML('adminInfoImgUrl') +
       '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
       '<input type="text" id="adminInfoImgCaption" class="admin-input" value="' + escapeAttr(existingImg.caption || '') + '">' +
       '<label>\u041F\u043E\u0437\u0438\u0446\u0438\u044F:</label>' +
@@ -479,6 +584,7 @@
       }},
       { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
     ]);
+    wireUploadZone('adminInfoImgUrl');
   }
 
   // ========================================
@@ -542,6 +648,7 @@
     var content =
       '<label>\uD83D\uDDBC URL \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F:</label>' +
       '<input type="text" id="adminImgUrl" class="admin-input" placeholder="https://example.com/photo.jpg">' +
+      buildUploadZoneHTML('adminImgUrl') +
       '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
       '<input type="text" id="adminImgCaption" class="admin-input" placeholder="\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E">' +
       '<div class="admin-coords">yaw: ' + coords.yaw.toFixed(4) + '  pitch: ' + coords.pitch.toFixed(4) + '</div>';
@@ -557,6 +664,7 @@
       }},
       { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
     ]);
+    wireUploadZone('adminImgUrl');
   }
 
   function addImageHotspot(yaw, pitch, url, caption) {
@@ -596,6 +704,7 @@
     var content =
       '<label>\uD83D\uDDBC URL \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F:</label>' +
       '<input type="text" id="adminImgUrl" class="admin-input" value="' + escapeAttr(hotspotData.url) + '">' +
+      buildUploadZoneHTML('adminImgUrl') +
       '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
       '<input type="text" id="adminImgCaption" class="admin-input" value="' + escapeAttr(hotspotData.caption || '') + '">';
 
@@ -631,6 +740,7 @@
       }},
       { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
     ]);
+    wireUploadZone('adminImgUrl');
   }
 
   // ========================================
@@ -875,6 +985,34 @@
     } catch (e) {
       console.error('[Admin] Firebase sync failed:', e);
     }
+  }
+
+  function showImgBBModal() {
+    var currentKey = getImgBBKey();
+    var content =
+      '<p class="admin-hint">\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u0443\u0439\u0442\u0435\u0441\u044C \u043D\u0430 ' +
+      '<a href="https://api.imgbb.com/" target="_blank">api.imgbb.com</a> ' +
+      '\u0438 \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u0435 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 API-\u043A\u043B\u044E\u0447. ' +
+      '\u041F\u043E\u0441\u043B\u0435 \u044D\u0442\u043E\u0433\u043E \u043C\u043E\u0436\u043D\u043E \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0442\u044C \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F ' +
+      '\u043F\u0440\u044F\u043C\u043E \u0441 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u0430 (drag-and-drop).</p>' +
+      '<label>API Key:</label>' +
+      '<input type="text" id="imgbbApiKey" class="admin-input" value="' + escapeAttr(currentKey) + '" placeholder="\u0412\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u043A\u043B\u044E\u0447...">' +
+      '<div class="admin-firebase-status">' + (currentKey ? '\uD83D\uDFE2 \u041A\u043B\u044E\u0447 \u0437\u0430\u0434\u0430\u043D' : '\u26AA \u041D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D\u043E') + '</div>';
+
+    createModal('\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 ImgBB', content, [
+      { text: '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C', primary: true, onClick: function() {
+        var key = document.getElementById('imgbbApiKey').value.trim();
+        if (key) {
+          localStorage.setItem(LS_IMGBB_KEY, key);
+          notify('ImgBB API-\u043A\u043B\u044E\u0447 \u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D');
+        } else {
+          localStorage.removeItem(LS_IMGBB_KEY);
+          notify('ImgBB API-\u043A\u043B\u044E\u0447 \u0443\u0434\u0430\u043B\u0451\u043D');
+        }
+        closeModal();
+      }},
+      { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
+    ]);
   }
 
   function showFirebaseModal() {
