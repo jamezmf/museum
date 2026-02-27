@@ -567,7 +567,7 @@
     lens.classList.add('info-expanded-lens');
     imgSide.appendChild(lens);
 
-    var zoomLevel = 2.5;
+    var zoomLevel = 3;
     function updateLens(e) {
       var rect = img.getBoundingClientRect();
       var x = e.clientX - rect.left;
@@ -575,7 +575,7 @@
       // Clamp to image bounds
       if (x < 0) x = 0; if (x > rect.width) x = rect.width;
       if (y < 0) y = 0; if (y > rect.height) y = rect.height;
-      var lensSize = 160;
+      var lensSize = 240;
       lens.style.left = (x - lensSize / 2) + 'px';
       lens.style.top = (y - lensSize / 2) + 'px';
       lens.style.backgroundImage = 'url(' + imageUrl + ')';
