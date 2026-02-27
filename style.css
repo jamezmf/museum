@@ -1074,6 +1074,21 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   background: var(--m-terra);
 }
 
+/* Magnifier lens */
+.info-expanded-lens {
+  display: none;
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px solid var(--m-terra);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.5);
+  pointer-events: none;
+  z-index: 3;
+  background-repeat: no-repeat;
+  background-color: rgba(0,0,0,0.9);
+}
+
 .info-expanded-img {
   flex: 0 0 50%;
   display: flex;
@@ -1082,6 +1097,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   justify-content: center;
   background: rgba(0,0,0,0.3);
   overflow: hidden;
+  position: relative;
 }
 
 .info-expanded-img img {

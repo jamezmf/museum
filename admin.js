@@ -398,6 +398,7 @@
       '<input type="text" id="adminInfoTitle" class="admin-input" placeholder="\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u044D\u043A\u0441\u043F\u043E\u043D\u0430\u0442\u0430">' +
       '<label>\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 (HTML \u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C):</label>' +
       '<textarea id="adminInfoText" class="admin-textarea" rows="5" placeholder="\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435..."></textarea>' +
+      '<p class="admin-hint">\u0422\u044D\u0433\u0438: &lt;b&gt;\u0436\u0438\u0440\u043D\u044B\u0439&lt;/b&gt;, &lt;i&gt;\u043A\u0443\u0440\u0441\u0438\u0432&lt;/i&gt;, &lt;br&gt; \u2014 \u043F\u0435\u0440\u0435\u043D\u043E\u0441, &lt;p&gt; \u2014 \u0430\u0431\u0437\u0430\u0446</p>' +
       '<hr class="admin-divider">' +
       '<label>\uD83D\uDDBC \u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 (URL, \u043D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E):</label>' +
       '<input type="text" id="adminInfoImgUrl" class="admin-input" placeholder="https://example.com/photo.jpg">' +

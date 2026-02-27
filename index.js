@@ -561,6 +561,31 @@
     img.src = imageUrl;
     img.alt = caption || title || '';
     imgSide.appendChild(img);
+
+    // Magnifier lens — follows cursor on hover over image
+    var lens = document.createElement('div');
+    lens.classList.add('info-expanded-lens');
+    imgSide.appendChild(lens);
+
+    var zoomLevel = 2.5;
+    function updateLens(e) {
+      var rect = img.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      // Clamp to image bounds
+      if (x < 0) x = 0; if (x > rect.width) x = rect.width;
+      if (y < 0) y = 0; if (y > rect.height) y = rect.height;
+      var lensSize = 160;
+      lens.style.left = (x - lensSize / 2) + 'px';
+      lens.style.top = (y - lensSize / 2) + 'px';
+      lens.style.backgroundImage = 'url(' + imageUrl + ')';
+      lens.style.backgroundSize = (rect.width * zoomLevel) + 'px ' + (rect.height * zoomLevel) + 'px';
+      lens.style.backgroundPosition = '-' + (x * zoomLevel - lensSize / 2) + 'px -' + (y * zoomLevel - lensSize / 2) + 'px';
+    }
+    img.addEventListener('mouseenter', function() { lens.style.display = 'block'; });
+    img.addEventListener('mouseleave', function() { lens.style.display = 'none'; });
+    img.addEventListener('mousemove', updateLens);
+
     if (caption) {
       var cap = document.createElement('div');
       cap.classList.add('info-expanded-caption');
@@ -568,7 +593,8 @@
       imgSide.appendChild(cap);
     }
     // Click image → lightbox for full zoom
-    imgSide.style.cursor = 'pointer';
+    imgSide.style.cursor = 'zoom-in';
+    img.style.cursor = 'none'; /* hide cursor when lens active */
     imgSide.addEventListener('click', function(e) {
       e.stopPropagation();
       openLightbox(imageUrl, caption);
