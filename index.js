@@ -72,6 +72,29 @@
   // Initialize viewer.
   var viewer = new Marzipano.Viewer(panoElement, viewerOpts);
 
+  // Build a per-scene view limiter function.
+  function buildLimiter(faceSize, viewLimits) {
+    return Marzipano.util.compose(
+      Marzipano.RectilinearView.limit.traditional(
+        faceSize, 100 * Math.PI / 180, 120 * Math.PI / 180),
+      function(params) {
+        // Per-scene FOV clamp
+        if (params.fov < viewLimits.minFov) { params.fov = viewLimits.minFov; }
+        if (params.fov > viewLimits.maxFov) { params.fov = viewLimits.maxFov; }
+        // Per-scene pitch clamp
+        var halfVfov = (params.fov || 0) / 2;
+        var minPitch = -viewLimits.maxUpEdge + halfVfov;
+        var maxPitch = viewLimits.maxDownEdge - halfVfov;
+        if (minPitch > maxPitch) {
+          minPitch = maxPitch = (viewLimits.maxDownEdge - viewLimits.maxUpEdge) / 2;
+        }
+        if (params.pitch < minPitch) { params.pitch = minPitch; }
+        if (params.pitch > maxPitch) { params.pitch = maxPitch; }
+        return params;
+      }
+    );
+  }
+
   // Create scenes.
   var scenes = data.scenes.map(function(data) {
     var urlPrefix = "tiles";
@@ -88,25 +111,7 @@
       minFov: (vl.minFov != null ? vl.minFov : 30) * Math.PI / 180,
       maxFov: (vl.maxFov != null ? vl.maxFov : 100) * Math.PI / 180
     };
-    var limiter = Marzipano.util.compose(
-      Marzipano.RectilinearView.limit.traditional(
-        data.faceSize, 100 * Math.PI / 180, 120 * Math.PI / 180),
-      function(params) {
-        // Per-scene FOV clamp
-        if (params.fov < sceneViewLimits.minFov) { params.fov = sceneViewLimits.minFov; }
-        if (params.fov > sceneViewLimits.maxFov) { params.fov = sceneViewLimits.maxFov; }
-        // Per-scene pitch clamp
-        var halfVfov = (params.fov || 0) / 2;
-        var minPitch = -sceneViewLimits.maxUpEdge + halfVfov;
-        var maxPitch = sceneViewLimits.maxDownEdge - halfVfov;
-        if (minPitch > maxPitch) {
-          minPitch = maxPitch = (sceneViewLimits.maxDownEdge - sceneViewLimits.maxUpEdge) / 2;
-        }
-        if (params.pitch < minPitch) { params.pitch = minPitch; }
-        if (params.pitch > maxPitch) { params.pitch = maxPitch; }
-        return params;
-      }
-    );
+    var limiter = buildLimiter(data.faceSize, sceneViewLimits);
     var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
 
     var scene = viewer.createScene({
@@ -134,6 +139,15 @@
       });
     });
 
+    // Create image hotspots (standalone images on panorama).
+    (data.imageHotspots || []).forEach(function(hotspot) {
+      var element = createImageHotspotElement(hotspot);
+      scene.hotspotContainer().createHotspot(element, {
+        yaw: hotspot.yaw,
+        pitch: hotspot.pitch
+      });
+    });
+
     // Create nadir patch to hide tripod with soft blur.
     var nadirPatch = createNadirPatchElement();
     scene.hotspotContainer().createHotspot(nadirPatch, {
@@ -145,7 +159,8 @@
       data: data,
       scene: scene,
       view: view,
-      viewLimits: sceneViewLimits
+      viewLimits: sceneViewLimits,
+      faceSize: data.faceSize
     };
   });
 
@@ -407,10 +422,60 @@
     header.appendChild(titleWrapper);
     header.appendChild(closeWrapper);
 
-    // Create text element.
+    // Create text element (with optional image).
     var text = document.createElement('div');
     text.classList.add('info-hotspot-text');
-    text.innerHTML = hotspot.text;
+
+    var hasImage = hotspot.image && hotspot.image.url;
+    var imgPos = hasImage ? (hotspot.image.position || 'top') : '';
+
+    if (hasImage) {
+      text.classList.add('has-image', 'img-pos-' + imgPos);
+    }
+
+    // Build image element if present.
+    var imageWrap = null;
+    if (hasImage) {
+      imageWrap = document.createElement('div');
+      imageWrap.classList.add('info-hotspot-image-wrap');
+      var img = document.createElement('img');
+      img.src = hotspot.image.url;
+      img.alt = hotspot.image.caption || hotspot.title || '';
+      img.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openLightbox(hotspot.image.url, hotspot.image.caption || hotspot.title || '');
+      });
+      imageWrap.appendChild(img);
+      if (hotspot.image.caption) {
+        var cap = document.createElement('div');
+        cap.classList.add('info-hotspot-image-caption');
+        cap.textContent = hotspot.image.caption;
+        imageWrap.appendChild(cap);
+      }
+    }
+
+    // Assemble text content depending on position.
+    if (hasImage && (imgPos === 'top')) {
+      text.appendChild(imageWrap);
+      var textInner = document.createElement('div');
+      textInner.classList.add('info-hotspot-text-inner');
+      textInner.innerHTML = hotspot.text;
+      text.appendChild(textInner);
+    } else if (hasImage && (imgPos === 'left' || imgPos === 'right')) {
+      text.appendChild(imageWrap);
+      var textInner = document.createElement('div');
+      textInner.classList.add('info-hotspot-text-inner');
+      textInner.innerHTML = hotspot.text;
+      text.appendChild(textInner);
+    } else if (hasImage && imgPos === 'bottom') {
+      var textInner = document.createElement('div');
+      textInner.classList.add('info-hotspot-text-inner');
+      textInner.innerHTML = hotspot.text;
+      text.appendChild(textInner);
+      text.appendChild(imageWrap);
+    } else {
+      text.innerHTML = hotspot.text;
+    }
 
     // Place header and text into wrapper element.
     wrapper.appendChild(header);
@@ -447,6 +512,70 @@
     inner.classList.add('nadir-patch-inner');
     wrapper.appendChild(inner);
     stopTouchAndScrollEventPropagation(wrapper);
+    return wrapper;
+  }
+
+  // Open a fullscreen lightbox for an image.
+  function openLightbox(url, caption) {
+    var existing = document.querySelector('.image-lightbox');
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.classList.add('image-lightbox');
+
+    var closeBtn = document.createElement('div');
+    closeBtn.classList.add('image-lightbox-close');
+    overlay.appendChild(closeBtn);
+
+    var img = document.createElement('img');
+    img.src = url;
+    overlay.appendChild(img);
+
+    if (caption) {
+      var cap = document.createElement('div');
+      cap.classList.add('image-lightbox-caption');
+      cap.textContent = caption;
+      overlay.appendChild(cap);
+    }
+
+    function closeLb() { overlay.classList.remove('visible'); setTimeout(function() { overlay.remove(); }, 350); }
+    closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeLb(); });
+    overlay.addEventListener('click', closeLb);
+    img.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function() { overlay.classList.add('visible'); });
+  }
+
+  // Create a standalone image hotspot (thumbnail on panorama, lightbox on click).
+  function createImageHotspotElement(hotspot) {
+    var wrapper = document.createElement('div');
+    wrapper.classList.add('hotspot');
+    wrapper.classList.add('image-hotspot');
+
+    var inner = document.createElement('div');
+    inner.classList.add('image-hotspot-inner');
+
+    var img = document.createElement('img');
+    img.src = hotspot.url;
+    img.alt = hotspot.caption || '';
+    inner.appendChild(img);
+
+    if (hotspot.caption) {
+      var cap = document.createElement('div');
+      cap.classList.add('image-hotspot-caption');
+      cap.textContent = hotspot.caption;
+      inner.appendChild(cap);
+    }
+
+    wrapper.appendChild(inner);
+
+    wrapper.addEventListener('click', function() {
+      openLightbox(hotspot.url, hotspot.caption || '');
+    });
+
+    stopTouchAndScrollEventPropagation(wrapper);
+
     return wrapper;
   }
 
@@ -491,13 +620,14 @@
   function updateViewLimits(sceneId, limits) {
     var s = findSceneById(sceneId);
     if (!s) return;
+    // Update the stored limits object (in radians).
     s.viewLimits.maxUpEdge = limits.maxUpEdge * Math.PI / 180;
     s.viewLimits.maxDownEdge = limits.maxDownEdge * Math.PI / 180;
     s.viewLimits.minFov = limits.minFov * Math.PI / 180;
     s.viewLimits.maxFov = limits.maxFov * Math.PI / 180;
-    // Force re-apply by nudging the view.
-    var v = s.view;
-    v.setParameters({ yaw: v.yaw(), pitch: v.pitch(), fov: v.fov() });
+    // Rebuild and replace the limiter on the view (forces Marzipano to re-evaluate).
+    var newLimiter = buildLimiter(s.faceSize, s.viewLimits);
+    s.view.setLimiter(newLimiter);
   }
 
   // Expose tour API for admin panel.
@@ -511,6 +641,8 @@
     findSceneDataById: findSceneDataById,
     createInfoHotspotElement: createInfoHotspotElement,
     createLinkHotspotElement: createLinkHotspotElement,
+    createImageHotspotElement: createImageHotspotElement,
+    openLightbox: openLightbox,
     updateViewLimits: updateViewLimits
   };
 

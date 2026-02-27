@@ -63,9 +63,11 @@
           mkBtn('mode-edit', '\u270F\uFE0F', '\u0420\u0435\u0434\u0430\u043A\u0442.') +
           mkBtn('mode-add-info', '\uD83D\uDCCC', '\u0418\u043D\u0444\u043E') +
           mkBtn('mode-add-link', '\uD83D\uDD17', '\u0421\u0441\u044B\u043B\u043A\u0430') +
+          mkBtn('mode-add-image', '\uD83D\uDDBC', '\u041A\u0430\u0440\u0442\u0438\u043D\u043A\u0430') +
           '<span class="admin-sep"></span>' +
           mkBtn('save-view', '\uD83D\uDCF7', '\u0420\u0430\u043A\u0443\u0440\u0441') +
           mkBtn('edit-scenes', '\uD83D\uDCCB', '\u0421\u0446\u0435\u043D\u044B') +
+          mkBtn('edit-limits', '\uD83D\uDCD0', '\u0423\u0433\u043B\u044B') +
           '<span class="admin-sep"></span>' +
           mkBtn('save', '\uD83D\uDCBE', '\u0421\u043E\u0445\u0440.') +
           mkBtn('export', '\uD83D\uDCE5', '\u042D\u043A\u0441\u043F\u043E\u0440\u0442') +
@@ -90,12 +92,13 @@
   }
 
   function onAction(action) {
-    var modeActions = ['mode-view', 'mode-edit', 'mode-add-info', 'mode-add-link'];
+    var modeActions = ['mode-view', 'mode-edit', 'mode-add-info', 'mode-add-link', 'mode-add-image'];
     switch (action) {
-      case 'mode-view':     setMode('view'); break;
-      case 'mode-edit':     setMode('edit'); break;
-      case 'mode-add-info': setMode('add-info'); break;
-      case 'mode-add-link': setMode('add-link'); break;
+      case 'mode-view':      setMode('view'); break;
+      case 'mode-edit':      setMode('edit'); break;
+      case 'mode-add-info':  setMode('add-info'); break;
+      case 'mode-add-link':  setMode('add-link'); break;
+      case 'mode-add-image': setMode('add-image'); break;
       case 'save-view':     doSaveView(); break;
       case 'edit-scenes':   showScenesModal(); break;
       case 'edit-limits':   showViewLimitsModal(); break;
@@ -117,10 +120,11 @@
   function setMode(m) {
     mode = m;
     var labels = {
-      'view':     '\u041F\u0440\u043E\u0441\u043C\u043E\u0442\u0440',
-      'edit':     '\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 (\u043A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u0445\u043E\u0442\u0441\u043F\u043E\u0442)',
-      'add-info': '\u041A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u0443 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0433\u043E \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442\u0430',
-      'add-link': '\u041A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u0443 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0439 \u0441\u0441\u044B\u043B\u043A\u0438'
+      'view':      '\u041F\u0440\u043E\u0441\u043C\u043E\u0442\u0440',
+      'edit':      '\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 (\u043A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u0445\u043E\u0442\u0441\u043F\u043E\u0442)',
+      'add-info':  '\u041A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u0443 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0433\u043E \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442\u0430',
+      'add-link':  '\u041A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u0443 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0439 \u0441\u0441\u044B\u043B\u043A\u0438',
+      'add-image': '\u041A\u043B\u0438\u043A\u043D\u0438\u0442\u0435 \u043D\u0430 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u0443 \u0434\u043B\u044F \u043D\u043E\u0432\u043E\u0439 \u043A\u0430\u0440\u0442\u0438\u043D\u043A\u0438'
     };
     modeLabel.textContent = labels[m] || m;
     document.body.className = document.body.className.replace(/\badmin-mode-\S+/g, '');
@@ -154,6 +158,9 @@
       } else if (mode === 'add-link') {
         var coords = screenToCoords(e);
         if (coords) showAddLinkModal(coords);
+      } else if (mode === 'add-image') {
+        var coords = screenToCoords(e);
+        if (coords) showAddImageModal(coords);
       }
     });
 
@@ -166,6 +173,14 @@
         e.stopPropagation();
         e.preventDefault();
         showEditInfoModal(infoEl);
+        return;
+      }
+
+      var imgEl = e.target.closest('.image-hotspot');
+      if (imgEl) {
+        e.stopPropagation();
+        e.preventDefault();
+        showEditImageModal(imgEl);
         return;
       }
 
@@ -281,14 +296,30 @@
       '<input type="text" id="adminInfoTitle" class="admin-input" placeholder="\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u044D\u043A\u0441\u043F\u043E\u043D\u0430\u0442\u0430">' +
       '<label>\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 (HTML \u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C):</label>' +
       '<textarea id="adminInfoText" class="admin-textarea" rows="5" placeholder="\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435..."></textarea>' +
+      '<hr class="admin-divider">' +
+      '<label>\uD83D\uDDBC \u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 (URL, \u043D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E):</label>' +
+      '<input type="text" id="adminInfoImgUrl" class="admin-input" placeholder="https://example.com/photo.jpg">' +
+      '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C \u043A \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044E:</label>' +
+      '<input type="text" id="adminInfoImgCaption" class="admin-input" placeholder="\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E">' +
+      '<label>\u041F\u043E\u0437\u0438\u0446\u0438\u044F \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F:</label>' +
+      '<select id="adminInfoImgPos" class="admin-input">' +
+        '<option value="top">\u0421\u0432\u0435\u0440\u0445\u0443 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
+        '<option value="bottom">\u0421\u043D\u0438\u0437\u0443 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
+        '<option value="left">\u0421\u043B\u0435\u0432\u0430 \u043E\u0442 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
+        '<option value="right">\u0421\u043F\u0440\u0430\u0432\u0430 \u043E\u0442 \u0442\u0435\u043A\u0441\u0442\u0430</option>' +
+      '</select>' +
       '<div class="admin-coords">yaw: ' + coords.yaw.toFixed(4) + '  pitch: ' + coords.pitch.toFixed(4) + '</div>';
 
     createModal('\u041D\u043E\u0432\u044B\u0439 \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442', content, [
       { text: '\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C', primary: true, onClick: function() {
         var title = document.getElementById('adminInfoTitle').value;
         var text = document.getElementById('adminInfoText').value;
+        var imgUrl = document.getElementById('adminInfoImgUrl').value.trim();
+        var imgCaption = document.getElementById('adminInfoImgCaption').value.trim();
+        var imgPos = document.getElementById('adminInfoImgPos').value;
         if (!title) { alert('\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A'); return; }
-        addInfoHotspot(coords.yaw, coords.pitch, title, text);
+        var image = imgUrl ? { url: imgUrl, caption: imgCaption, position: imgPos } : null;
+        addInfoHotspot(coords.yaw, coords.pitch, title, text, image);
         closeModal();
         notify('\u0418\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D');
       }},
@@ -296,12 +327,13 @@
     ]);
   }
 
-  function addInfoHotspot(yaw, pitch, title, text) {
+  function addInfoHotspot(yaw, pitch, title, text, image) {
     var sceneId = curSceneId();
     var sd = sceneDataById(sceneId);
     if (!sd) return;
 
     var hotspot = { yaw: yaw, pitch: pitch, title: title, text: text };
+    if (image) hotspot.image = image;
     sd.infoHotspots.push(hotspot);
 
     // Add to live scene
@@ -386,27 +418,51 @@
       text: (element.querySelector('.info-hotspot-text') || {}).innerHTML || ''
     };
 
+    var existingImg = hotspotData.image || {};
     var content =
       '<label>\u0417\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A:</label>' +
       '<input type="text" id="adminInfoTitle" class="admin-input" value="' + escapeAttr(hotspotData.title) + '">' +
       '<label>\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 (HTML):</label>' +
-      '<textarea id="adminInfoText" class="admin-textarea" rows="5">' + escapeHtml(hotspotData.text) + '</textarea>';
+      '<textarea id="adminInfoText" class="admin-textarea" rows="5">' + escapeHtml(hotspotData.text) + '</textarea>' +
+      '<hr class="admin-divider">' +
+      '<label>\uD83D\uDDBC \u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435 (URL):</label>' +
+      '<input type="text" id="adminInfoImgUrl" class="admin-input" value="' + escapeAttr(existingImg.url || '') + '">' +
+      '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
+      '<input type="text" id="adminInfoImgCaption" class="admin-input" value="' + escapeAttr(existingImg.caption || '') + '">' +
+      '<label>\u041F\u043E\u0437\u0438\u0446\u0438\u044F:</label>' +
+      '<select id="adminInfoImgPos" class="admin-input">' +
+        '<option value="top"' + (existingImg.position === 'top' || !existingImg.position ? ' selected' : '') + '>\u0421\u0432\u0435\u0440\u0445\u0443</option>' +
+        '<option value="bottom"' + (existingImg.position === 'bottom' ? ' selected' : '') + '>\u0421\u043D\u0438\u0437\u0443</option>' +
+        '<option value="left"' + (existingImg.position === 'left' ? ' selected' : '') + '>\u0421\u043B\u0435\u0432\u0430</option>' +
+        '<option value="right"' + (existingImg.position === 'right' ? ' selected' : '') + '>\u0421\u043F\u0440\u0430\u0432\u0430</option>' +
+      '</select>';
 
     createModal('\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0438\u043D\u0444\u043E-\u0445\u043E\u0442\u0441\u043F\u043E\u0442', content, [
       { text: '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C', primary: true, onClick: function() {
         var title = document.getElementById('adminInfoTitle').value;
         var text = document.getElementById('adminInfoText').value;
+        var imgUrl = document.getElementById('adminInfoImgUrl').value.trim();
+        var imgCaption = document.getElementById('adminInfoImgCaption').value.trim();
+        var imgPos = document.getElementById('adminInfoImgPos').value;
 
         if (dataIndex >= 0) {
           sd.infoHotspots[dataIndex].title = title;
           sd.infoHotspots[dataIndex].text = text;
+          if (imgUrl) {
+            sd.infoHotspots[dataIndex].image = { url: imgUrl, caption: imgCaption, position: imgPos };
+          } else {
+            delete sd.infoHotspots[dataIndex].image;
+          }
         }
 
-        // Update DOM
-        var tEl = element.querySelector('.info-hotspot-title');
-        var xEl = element.querySelector('.info-hotspot-text');
-        if (tEl) tEl.innerHTML = title;
-        if (xEl) xEl.innerHTML = text;
+        // Rebuild hotspot DOM (easier than selective update for image layout)
+        if (hotspotObj && container) {
+          var pos = hotspotObj.position();
+          container.destroyHotspot(hotspotObj);
+          var newData = dataIndex >= 0 ? sd.infoHotspots[dataIndex] : hotspotData;
+          var el = window.TOUR.createInfoHotspotElement(newData);
+          container.createHotspot(el, { yaw: pos.yaw, pitch: pos.pitch });
+        }
 
         closeModal();
         autoSave();
@@ -473,6 +529,104 @@
           closeModal();
           autoSave();
           notify('\u0421\u0441\u044B\u043B\u043A\u0430 \u0443\u0434\u0430\u043B\u0435\u043D\u0430');
+        }
+      }},
+      { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
+    ]);
+  }
+
+  // ========================================
+  // ===== ADD IMAGE HOTSPOT
+  // ========================================
+  function showAddImageModal(coords) {
+    var content =
+      '<label>\uD83D\uDDBC URL \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F:</label>' +
+      '<input type="text" id="adminImgUrl" class="admin-input" placeholder="https://example.com/photo.jpg">' +
+      '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
+      '<input type="text" id="adminImgCaption" class="admin-input" placeholder="\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E">' +
+      '<div class="admin-coords">yaw: ' + coords.yaw.toFixed(4) + '  pitch: ' + coords.pitch.toFixed(4) + '</div>';
+
+    createModal('\u041D\u043E\u0432\u0430\u044F \u043A\u0430\u0440\u0442\u0438\u043D\u043A\u0430', content, [
+      { text: '\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C', primary: true, onClick: function() {
+        var url = document.getElementById('adminImgUrl').value.trim();
+        var caption = document.getElementById('adminImgCaption').value.trim();
+        if (!url) { alert('\u0412\u0432\u0435\u0434\u0438\u0442\u0435 URL \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F'); return; }
+        addImageHotspot(coords.yaw, coords.pitch, url, caption);
+        closeModal();
+        notify('\u041A\u0430\u0440\u0442\u0438\u043D\u043A\u0430 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0430');
+      }},
+      { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }
+    ]);
+  }
+
+  function addImageHotspot(yaw, pitch, url, caption) {
+    var sceneId = curSceneId();
+    var sd = sceneDataById(sceneId);
+    if (!sd) return;
+
+    if (!sd.imageHotspots) sd.imageHotspots = [];
+    var hotspot = { yaw: yaw, pitch: pitch, url: url, caption: caption };
+    sd.imageHotspots.push(hotspot);
+
+    var container = getHotspotContainer(sceneId);
+    if (container) {
+      var el = window.TOUR.createImageHotspotElement(hotspot);
+      container.createHotspot(el, { yaw: yaw, pitch: pitch });
+    }
+    autoSave();
+  }
+
+  // ========================================
+  // ===== EDIT IMAGE HOTSPOT
+  // ========================================
+  function showEditImageModal(element) {
+    var sceneId = curSceneId();
+    var sd = sceneDataById(sceneId);
+    if (!sd || !sd.imageHotspots) return;
+
+    var container = getHotspotContainer(sceneId);
+    var hotspotObj = findHotspotObj(container, element);
+    var pos = hotspotObj ? hotspotObj.position() : null;
+
+    var dataIndex = pos ? findDataIndex(sd.imageHotspots, pos.yaw, pos.pitch) : -1;
+    if (dataIndex === -1) return;
+
+    var hotspotData = sd.imageHotspots[dataIndex];
+
+    var content =
+      '<label>\uD83D\uDDBC URL \u0438\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F:</label>' +
+      '<input type="text" id="adminImgUrl" class="admin-input" value="' + escapeAttr(hotspotData.url) + '">' +
+      '<label>\u041F\u043E\u0434\u043F\u0438\u0441\u044C:</label>' +
+      '<input type="text" id="adminImgCaption" class="admin-input" value="' + escapeAttr(hotspotData.caption || '') + '">';
+
+    createModal('\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u0430\u0440\u0442\u0438\u043D\u043A\u0443', content, [
+      { text: '\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C', primary: true, onClick: function() {
+        var url = document.getElementById('adminImgUrl').value.trim();
+        var caption = document.getElementById('adminImgCaption').value.trim();
+        if (!url) { alert('\u0412\u0432\u0435\u0434\u0438\u0442\u0435 URL'); return; }
+
+        sd.imageHotspots[dataIndex].url = url;
+        sd.imageHotspots[dataIndex].caption = caption;
+
+        // Rebuild hotspot DOM
+        if (hotspotObj && container) {
+          var oldPos = hotspotObj.position();
+          container.destroyHotspot(hotspotObj);
+          var el = window.TOUR.createImageHotspotElement(sd.imageHotspots[dataIndex]);
+          container.createHotspot(el, { yaw: oldPos.yaw, pitch: oldPos.pitch });
+        }
+
+        closeModal();
+        autoSave();
+        notify('\u041A\u0430\u0440\u0442\u0438\u043D\u043A\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0430');
+      }},
+      { text: '\u0423\u0434\u0430\u043B\u0438\u0442\u044C', danger: true, onClick: function() {
+        if (confirm('\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u044D\u0442\u0443 \u043A\u0430\u0440\u0442\u0438\u043D\u043A\u0443?')) {
+          sd.imageHotspots.splice(dataIndex, 1);
+          if (hotspotObj && container) container.destroyHotspot(hotspotObj);
+          closeModal();
+          autoSave();
+          notify('\u041A\u0430\u0440\u0442\u0438\u043D\u043A\u0430 \u0443\u0434\u0430\u043B\u0435\u043D\u0430');
         }
       }},
       { text: '\u041E\u0442\u043C\u0435\u043D\u0430', onClick: closeModal }

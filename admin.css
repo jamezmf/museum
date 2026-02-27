@@ -431,3 +431,10 @@ body.admin-mode-edit .link-hotspot:hover {
     width: 95vw;
   }
 }
+
+/* Admin divider */
+.admin-divider {
+  border: none;
+  border-top: 1px solid rgba(160,97,58,0.3);
+  margin: 12px 0 8px;
+}
