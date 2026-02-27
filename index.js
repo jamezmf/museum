@@ -425,26 +425,37 @@
     // Create text element.
     var text = document.createElement('div');
     text.classList.add('info-hotspot-text');
-    text.innerHTML = hotspot.text;
 
-    // If image is present, append a small clickable thumbnail strip at the bottom.
     var hasImage = hotspot.image && hotspot.image.url;
+
+    // If image present, build card layout: thumbnail left + text right
     if (hasImage) {
-      var thumb = document.createElement('div');
-      thumb.classList.add('info-hotspot-thumb');
+      wrapper.classList.add('has-image');
+
+      var thumbSide = document.createElement('div');
+      thumbSide.classList.add('info-hotspot-thumb');
       var thumbImg = document.createElement('img');
       thumbImg.src = hotspot.image.url;
       thumbImg.alt = hotspot.image.caption || hotspot.title || '';
-      thumb.appendChild(thumbImg);
-      var thumbHint = document.createElement('span');
-      thumbHint.classList.add('info-hotspot-thumb-hint');
-      thumbHint.textContent = hotspot.image.caption || '\u041D\u0430\u0436\u043C\u0438\u0442\u0435 \u0434\u043B\u044F \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u044F';
-      thumb.appendChild(thumbHint);
-      thumb.addEventListener('click', function(e) {
+      thumbSide.appendChild(thumbImg);
+      // Small expand icon on thumbnail
+      var expandIcon = document.createElement('div');
+      expandIcon.classList.add('info-hotspot-expand-icon');
+      thumbSide.appendChild(expandIcon);
+      text.appendChild(thumbSide);
+
+      var textBody = document.createElement('div');
+      textBody.classList.add('info-hotspot-text-body');
+      textBody.innerHTML = hotspot.text;
+      text.appendChild(textBody);
+
+      // Click thumbnail → expanded overlay
+      thumbSide.addEventListener('click', function(e) {
         e.stopPropagation();
-        openLightbox(hotspot.image.url, hotspot.image.caption || hotspot.title || '');
+        openExpandedView(hotspot.image.url, hotspot.image.caption || '', hotspot.title, hotspot.text);
       });
-      text.appendChild(thumb);
+    } else {
+      text.innerHTML = hotspot.text;
     }
 
     // Place header and text into wrapper element.
@@ -521,6 +532,73 @@
     closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeLb(); });
     overlay.addEventListener('click', closeLb);
     img.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function() { overlay.classList.add('visible'); });
+  }
+
+  // Open expanded view: big image + full text side by side.
+  function openExpandedView(imageUrl, caption, title, textHtml) {
+    var existing = document.querySelector('.info-expanded-overlay');
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.classList.add('info-expanded-overlay');
+
+    var card = document.createElement('div');
+    card.classList.add('info-expanded-card');
+
+    // Close button
+    var closeBtn = document.createElement('div');
+    closeBtn.classList.add('info-expanded-close');
+    closeBtn.innerHTML = '\u00D7';
+    card.appendChild(closeBtn);
+
+    // Left: image
+    var imgSide = document.createElement('div');
+    imgSide.classList.add('info-expanded-img');
+    var img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = caption || title || '';
+    imgSide.appendChild(img);
+    if (caption) {
+      var cap = document.createElement('div');
+      cap.classList.add('info-expanded-caption');
+      cap.textContent = caption;
+      imgSide.appendChild(cap);
+    }
+    // Click image → lightbox for full zoom
+    imgSide.style.cursor = 'pointer';
+    imgSide.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openLightbox(imageUrl, caption);
+    });
+    card.appendChild(imgSide);
+
+    // Right: title + text
+    var txtSide = document.createElement('div');
+    txtSide.classList.add('info-expanded-text');
+    if (title) {
+      var h = document.createElement('div');
+      h.classList.add('info-expanded-title');
+      h.textContent = title;
+      txtSide.appendChild(h);
+    }
+    var body = document.createElement('div');
+    body.classList.add('info-expanded-body');
+    body.innerHTML = textHtml;
+    txtSide.appendChild(body);
+    card.appendChild(txtSide);
+
+    overlay.appendChild(card);
+
+    function closeExpanded() {
+      overlay.classList.remove('visible');
+      setTimeout(function() { overlay.remove(); }, 300);
+    }
+    closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeExpanded(); });
+    overlay.addEventListener('click', closeExpanded);
+    card.addEventListener('click', function(e) { e.stopPropagation(); });
 
     document.body.appendChild(overlay);
     requestAnimationFrame(function() { overlay.classList.add('visible'); });
