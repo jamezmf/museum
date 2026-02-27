@@ -1155,6 +1155,125 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
   }
 }
 
+/* ===== Rich HTML styles inside text containers ===== */
+.info-hotspot-text h1,
+.info-hotspot-text-body h1,
+.info-expanded-body h1,
+.info-hotspot-modal .info-hotspot-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--m-cream);
+  margin: 0 0 10px 0;
+  line-height: 1.3;
+}
+
+.info-hotspot-text h2,
+.info-hotspot-text-body h2,
+.info-expanded-body h2,
+.info-hotspot-modal .info-hotspot-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--m-cream);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.info-hotspot-text h3,
+.info-hotspot-text-body h3,
+.info-expanded-body h3,
+.info-hotspot-modal .info-hotspot-text h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--m-cream);
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.info-hotspot-text p,
+.info-hotspot-text-body p,
+.info-expanded-body p,
+.info-hotspot-modal .info-hotspot-text p {
+  margin: 0 0 12px 0;
+}
+.info-hotspot-text p:last-child,
+.info-hotspot-text-body p:last-child,
+.info-expanded-body p:last-child,
+.info-hotspot-modal .info-hotspot-text p:last-child {
+  margin-bottom: 0;
+}
+
+.info-hotspot-text strong,
+.info-hotspot-text-body strong,
+.info-expanded-body strong,
+.info-hotspot-modal .info-hotspot-text strong,
+.info-hotspot-text b,
+.info-hotspot-text-body b,
+.info-expanded-body b,
+.info-hotspot-modal .info-hotspot-text b {
+  font-weight: 700;
+  color: var(--m-cream);
+}
+
+.info-hotspot-text em,
+.info-hotspot-text-body em,
+.info-expanded-body em,
+.info-hotspot-modal .info-hotspot-text em,
+.info-hotspot-text i,
+.info-hotspot-text-body i,
+.info-expanded-body i,
+.info-hotspot-modal .info-hotspot-text i {
+  font-style: italic;
+}
+
+.info-hotspot-text ul,
+.info-hotspot-text-body ul,
+.info-expanded-body ul,
+.info-hotspot-modal .info-hotspot-text ul {
+  margin: 0 0 12px 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.info-hotspot-text ol,
+.info-hotspot-text-body ol,
+.info-expanded-body ol,
+.info-hotspot-modal .info-hotspot-text ol {
+  margin: 0 0 12px 0;
+  padding-left: 20px;
+  list-style: decimal;
+}
+
+.info-hotspot-text li,
+.info-hotspot-text-body li,
+.info-expanded-body li,
+.info-hotspot-modal .info-hotspot-text li {
+  margin-bottom: 4px;
+}
+
+.info-hotspot-text a,
+.info-hotspot-text-body a,
+.info-expanded-body a,
+.info-hotspot-modal .info-hotspot-text a {
+  color: var(--m-terra-light);
+  text-decoration: underline;
+}
+.info-hotspot-text a:hover,
+.info-hotspot-text-body a:hover,
+.info-expanded-body a:hover {
+  color: var(--m-cream);
+}
+
+.info-hotspot-text br,
+.info-hotspot-text-body br,
+.info-expanded-body br {
+  display: block;
+  content: '';
+  margin-top: 4px;
+}
+
 /* ===== STANDALONE IMAGE HOTSPOT ===== */
 .image-hotspot {
   cursor: pointer;
