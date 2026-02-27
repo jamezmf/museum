@@ -953,6 +953,10 @@
           adminData = fbData;
           localStorage.setItem(LS_DATA_KEY, JSON.stringify(adminData));
           notify('\u0414\u0430\u043D\u043D\u044B\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u044B \u0438\u0437 Firebase');
+        } else {
+          // Firebase empty — push local data up
+          syncToFirebase();
+          notify('\u041B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u044B \u0432 Firebase');
         }
       });
 

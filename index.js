@@ -23,6 +23,26 @@
     } catch(e) { /* ignore parse errors */ }
   })();
 
+  // Try loading from Firebase REST API (cloud data overrides local).
+  (function() {
+    try {
+      var raw = localStorage.getItem('museum_firebase_config');
+      if (!raw) return;
+      var config = JSON.parse(raw);
+      if (!config || !config.databaseURL) return;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', config.databaseURL + '/tourData.json', false); // sync
+      xhr.send();
+      if (xhr.status === 200) {
+        var fbData = JSON.parse(xhr.responseText);
+        if (fbData && fbData.scenes && fbData.scenes.length) {
+          data = fbData;
+          localStorage.setItem('museum_tour_data', JSON.stringify(fbData));
+        }
+      }
+    } catch(e) { /* Firebase unavailable — use local data */ }
+  })();
+
   // Grab elements from DOM.
   var panoElement = document.querySelector('#pano');
   var sceneNameElement = document.querySelector('#titleBar .sceneName');
