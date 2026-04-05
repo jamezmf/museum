@@ -634,6 +634,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle { display: none
 
 .info-hotspot.visible {
   opacity: 1;
+  z-index: 9999;
 }
 
 /* Header: closed = pill with icon + "ПОДРОБНЕЕ"; opened = rectangle with title + close */
